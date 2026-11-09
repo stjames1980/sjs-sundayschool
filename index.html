@@ -244,7 +244,7 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
   <div class="brand"><div class="logo" id="logoIc"></div><div><b id="brandOrg">St. James H.S. School</b><small>Sunday School Attendance</small></div></div>
   <nav class="nav" id="nav"></nav>
   <a class="instb" id="instBtn" onclick="installApp()">⬇ Install App</a>
-  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.5 · works offline</div></div>
+  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.6 · works offline</div></div>
  </aside>
  <main class="main" id="main"></main>
 </div>
@@ -735,7 +735,7 @@ function paper(o){const s=S.settings;const body=String(o.body||'').replace(/<tab
  ${info.length?`<div class="pp-info">${info.map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join('')}</div>`:'<div style="height:12px"></div>'}
  ${body}
  ${o.tiles?`<div class="pp-tiles">${o.tiles.map(([l,v,c,b])=>`<div style="--c:${c};--b:${b}"><b>${v}</b><span>${l}</span></div>`).join('')}</div>`:''}
- ${sigBlock(o.teacher)}
+ ${sigBlock(o.teacher,o.tlabel)}
  <div class="pp-foot"><span>${esc(s.org)} · ${esc(s.sub)} · Attendance & Results</span><span>Printed ${new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div></div>`}
 function doPrint(){const land=document.querySelector('#rep[data-land]');let st=null;if(land){st=document.createElement('style');st.textContent='@page{size:A4 landscape;margin:6mm}';document.head.appendChild(st)}
  try{window.print()}catch(e){toast('Printing is not available here')}if(st)setTimeout(()=>st.remove(),1500)}
@@ -955,8 +955,8 @@ function editDept(id){const d=id?deptOf(id):null;let col=d?d.color:COLORS[S.dept
  w.querySelectorAll('.cdot').forEach(b=>b.onclick=()=>{col=b.dataset.c;w.querySelectorAll('.cdot').forEach(x=>x.classList.toggle('on',x===b))})}
 
 /* ============ v2: Signatures ============ */
-function sigBlock(teacher){const s=S.settings;const b=(t,n,img)=>`<div class="sb"><div class="im">${img?`<img src="${img}" alt="${t} signature">`:''}</div><div class="ln">${t}${n?`<small>${esc(n)}</small>`:''}</div></div>`;
- return `<div class="sig">${teacher!==undefined?b('Class Teacher',teacher,''):''}${b('Secretary',s.secy,s.sig_secy)}${b('Superintendent',s.supt,s.sig_supt)}</div>`}
+function sigBlock(teacher,tlabel){const s=S.settings;const b=(t,n,img)=>`<div class="sb"><div class="im">${img?`<img src="${img}" alt="${t} signature">`:''}</div><div class="ln">${t}${n?`<small>${esc(n)}</small>`:''}</div></div>`;
+ return `<div class="sig">${teacher!==undefined?b(tlabel||'Class Teacher',teacher,''):''}${b('Secretary',s.secy,s.sig_secy)}${b('Superintendent',s.supt,s.sig_supt)}</div>`}
 function vSign(){const s=S.settings;setTimeout(()=>{initPad('secy');initPad('supt')},0);
  return `<div class="g2">${['secy','supt'].map(k=>{const t=k==='secy'?'Secretary':'Superintendent';return `<div class="card"><h3>${svg('edit',18)} ${t} signature</h3><div class="fld"><label>${t} name</label><input type="text" id="sn_${k}" value="${esc(s[k]||'')}" placeholder="Full name"></div>
  <p class="muted" style="font-size:12px;margin:10px 0 6px">Sign inside the box with your finger or mouse – or upload a photo/scan of the signature.</p><canvas class="sigpad" id="pad_${k}" width="1200" height="400"></canvas>
@@ -1148,7 +1148,8 @@ function xMerit(e){const f=U.xF||'all',n=U.xTop||10,ar=U.xAtt||'session';const x
   return `<tr><td class="c">${rankCell(r.rank,r.st==='H')}</td><td><b>${esc(r.s.name)}</b>${r.st==='H'?HONB:''}<div style="font-size:10.5px;color:#64748b">Roll ${r.s.roll}${r.s.guardian?' · '+esc(r.s.guardian):''}</div></td><td>${esc(r.d.name)}</td><td>${esc(r.c.name)}</td><td>${esc(secTeachers(r.c.id)||'—')}</td><td class="c">${a.M?`${a.P} / ${a.M}`:'—'}</td><td>${ap===null?'—':`<div class="attb">${miniBar(ap)}<b class="${pctCls(ap)}">${ap}%</b></div>`}</td><td class="c mkc">${r.v}</td><td>${badge(r.st)}</td></tr>`}).join('');
  const body=`<div class="tbl"><table data-title="Merit list"><tr><th class="c">Rank</th><th>Student Name</th><th>Department</th><th>Section</th><th>Class Teacher</th><th class="c">Sundays Present</th><th>Attendance</th><th class="c">Marks / ${e.fm}</th><th>Result</th></tr>${rows||'<tr><td colspan="9" class="muted">No marks entered yet</td></tr>'}</table></div>`;
  const hon=list.filter(r=>r.st==='H').length;
- return h+paper({tag:'Merit List',sub:esc(e.name),body,
+ const mT=f==='all'?'':[...new Set(S.teachers.filter(t=>t.dept===f).map(t=>t.name))].join(', ');
+ return h+paper({tag:'Merit List',sub:esc(e.name),body,teacher:mT,tlabel:f==='all'?'Teacher':'Teacher(s)',
   info:[['Examination',esc(e.name)],['Department',f==='all'?'All departments':esc(deptOf(f)?.name||'')],['Showing',n==='all'?`All ${list.length} students`:`Top ${n} (${list.length} students)`],['Marks',`Full ${e.fm} · Pass ${e.pm} · Honours ${e.hm}+`],['Attendance period',rangeLabel(ar)]],
   tiles:[['In this list',list.length,'#312e81','#eef2ff'],['Honours in list',hon,'#b45309','#fef3c7'],['Top marks',list[0]?list[0].v:'—','#6d28d9','#ede9fe'],['Avg attendance',aN?Math.round(aSum/aN*10)/10+'%':'—','#0e7490','#ecfeff'],['All appeared',x.ap,'#0f172a','#f1f5f9'],['All honours',x.H,'#6d28d9','#ede9fe'],['Pass %',x.ap?x.pp+'%':'—','#15803d','#dcfce7'],['Average marks',x.ap?x.avg:'—','#0f172a','#f1f5f9']]})}
 function xExcel(e){const f=U.xEf||'all';
