@@ -143,7 +143,9 @@ tr.dh td{background:#fbfbfe;font-weight:700}
  .cols{height:160px}.col .bl{font-size:9px}.col .bv{font-size:9px}
 }
 @media print{
- @page{size:A4;margin:11mm}
+ @page{size:A4;margin:6mm}
+ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff!important}
+ .app,.main{background:#fff!important}
  body{background:#fff;font-size:11.5px}
  .side,.bnav,.noprint,.top,.tabs,.toast{display:none!important}
  .main{margin:0;padding:0}
@@ -178,6 +180,57 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
 .rsum .hn{background:#ede9fe}.rsum .hn b{color:#6d28d9}
 .srow.rH .roll{background:#ede9fe;color:#6d28d9}.srow.rP .roll{background:var(--okb);color:#15803d}.srow.rF .roll{background:var(--badb);color:#b91c1c}.srow.rAB .roll{background:#e2e8f0;color:#475569}
 @media (max-width:860px){.xb{display:none}.bnav a{font-size:9.5px}.bnav a.on svg{width:30px}}
+
+/* ---- paper (modern printable sheet) ---- */
+.paper{background:#fff;border-radius:16px;box-shadow:var(--sh);border:1px solid var(--line);padding:22px;margin:0 auto;font-size:13px;color:#0f172a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.paper .rh{display:none!important}
+.pp-head{display:flex;align-items:center;gap:14px;background:linear-gradient(120deg,#1e1b4b 0%,#3730a3 55%,#7c3aed 100%);color:#fff;border-radius:14px;padding:14px 18px;position:relative;overflow:hidden}
+.pp-head::before{content:"";position:absolute;right:-50px;top:-70px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.07)}
+.pp-head::after{content:"";position:absolute;right:120px;bottom:-90px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.05)}
+.pp-logo{width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.14);display:grid;place-items:center;flex:none;border:1.5px solid rgba(255,255,255,.35);color:#fff}
+.pp-org{flex:1;min-width:0;position:relative;z-index:1}.pp-org b{display:block;font-size:21px;letter-spacing:.05em;text-transform:uppercase;line-height:1.15}.pp-org span{font-size:12px;opacity:.88}
+.pp-tag{text-align:right;position:relative;z-index:1}.pp-tag b{display:inline-block;font-size:15px;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);padding:5px 12px;border-radius:999px}.pp-tag small{display:block;font-size:11.5px;opacity:.9;margin-top:5px}
+.pp-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
+.pp-info div{border:1px solid #e0e4f2;border-left:4px solid #6366f1;border-radius:10px;padding:7px 10px;background:#f8f9ff}
+.pp-info small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#6366f1}
+.pp-info b{font-size:13px;font-weight:750}
+.paper .tbl{border:1px solid #dfe3f0;border-radius:12px;overflow:auto}
+.paper table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+.paper table th{background:#312e81;color:#fff;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:8px 9px;border:0}
+.paper table td{padding:7px 9px;border-bottom:1px solid #edf0f7}
+.paper table tbody tr:nth-child(even) td{background:#f7f8fd}
+.paper tr.sub td{background:#e0e7ff!important;font-weight:750}
+.paper tr.tot td{background:#312e81!important;color:#fff!important;font-weight:800}
+.paper tr.dh td{background:#eef2ff!important}
+.paper td.mkc{font-size:15px;font-weight:800}
+.paper .ok{color:#15803d}.paper .bad{color:#b91c1c}.paper .lvc{color:#b45309}
+.pp-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin-top:12px}
+.pp-tiles div{border-radius:10px;padding:8px 6px;background:var(--b);text-align:center;border:1px solid rgba(0,0,0,.04)}
+.pp-tiles b{display:block;font-size:19px;color:var(--c);line-height:1.2}.pp-tiles span{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#475569}
+.pp-foot{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#64748b;margin-top:12px;border-top:1px solid #edf0f7;padding-top:6px}
+.attb{display:flex;align-items:center;gap:6px}.attb .mini{min-width:42px;width:42px}
+.paper .sig{margin-top:30px}.paper .sig .sb{min-width:170px}
+.paper .cell{width:20px;height:20px}
+@media print{
+ .paper{box-shadow:none;border:0;border-radius:0;padding:0;font-size:11.5px}
+ .paper .tbl{overflow:visible;border-radius:8px;border:1px solid #c7cde0}
+ .paper table{font-size:11px}
+ .paper table th{padding:5px 6px!important;border:0!important;position:static}
+ .paper table td{padding:4px 6px!important;border:0!important;border-bottom:1px solid #e3e7f1!important}
+ .paper thead{display:table-header-group}
+ .paper .pp-head{border-radius:10px;padding:10px 14px}
+ .paper .sig{margin-top:36px}
+ .paper .cell{width:15px;height:15px;font-size:8.5px}
+ .paper .mini{display:none}
+ .paper td.mkc{font-size:12.5px}
+ .paper .pp-info{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:6px;margin:8px 0}
+ .paper .pp-info div{padding:5px 8px}.paper .pp-info b{font-size:11.5px}
+ .paper table td{padding:3px 6px!important;line-height:1.25}
+ .paper .rbadge{padding:1px 8px;font-size:10.5px}
+ .paper .pp-tiles{gap:5px;margin-top:8px;grid-template-columns:repeat(auto-fit,minmax(62px,1fr))}.paper .pp-tiles div{padding:5px 4px}.paper .pp-tiles b{font-size:14px}.paper .pp-tiles span{font-size:7.5px}
+ .paper .pp-foot{margin-top:8px}
+ .paper tr,.paper .pp-tiles,.paper .sig{page-break-inside:avoid;break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -186,7 +239,7 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
   <div class="brand"><div class="logo" id="logoIc"></div><div><b id="brandOrg">St. James H.S. School</b><small>Sunday School Attendance</small></div></div>
   <nav class="nav" id="nav"></nav>
   <a class="instb" id="instBtn" onclick="installApp()">⬇ Install App</a>
-  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.0 · works offline</div></div>
+  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.2 · works offline</div></div>
  </aside>
  <main class="main" id="main"></main>
 </div>
@@ -350,7 +403,8 @@ function idx(){if(_idx)return _idx;_idx={};S.students.forEach(s=>{(_idx[s.sec]=_
 const studentsOf=cid=>idx()[cid]||[];
 const deptOf=id=>S.depts.find(d=>d.id===id);
 function secInfo(cid){for(const d of S.depts){const c=d.secs.find(c=>c.id===cid);if(c)return{d,c}}return null}
-function secLabel(cid){const i=secInfo(cid);return i?`${i.d.name} – ${i.c.name}`:'—'}
+function secLabel(cid){const i=secInfo(cid);if(!i)return '—';const n=String(i.c.name);return n.toLowerCase().startsWith(i.d.name.toLowerCase())?n:`${i.d.name} – ${n}`}
+function secNm(n){n=String(n??'');return n.length<=2?'Section '+esc(n):esc(n)}
 
 /* ============ Dates ============ */
 const pad=n=>String(n).padStart(2,'0');
@@ -488,19 +542,19 @@ function vRoll(){
  const ctl=`<div class="ctl"><select onchange="setU('date',this.value)">${dateOpts(date)}</select></div>`;
  let h=topbar('Sunday Roll Call',fmtD(date)+' · one roll call per Sunday morning',ctl);
  h+=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.rDeptSel='${x.id}';U.rSecSel=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}<button class="chip" onclick="editDept()">＋ Department</button></div>
- <div class="chips">${d.secs.map(c=>{const s=secStat(date,c.id);return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('rSecSel','${c.id}')">Section ${esc(c.name)} <span class="muted" style="font-weight:500;${c.id===cid?'color:#c7d2fe':''}">${s.T}</span>${s.taken?'<span class="ck">✓</span>':''}</button>`}).join('')||'<span class="muted">No sections. Add sections in Setup.</span>'}</div></div>`;
+ <div class="chips">${d.secs.map(c=>{const s=secStat(date,c.id);return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('rSecSel','${c.id}')">${secNm(c.name)} <span class="muted" style="font-weight:500;${c.id===cid?'color:#c7d2fe':''}">${s.T}</span>${s.taken?'<span class="ck">✓</span>':''}</button>`}).join('')||'<span class="muted">No sections. Add sections in Setup.</span>'}</div></div>`;
  if(S.hol[date])return h+`<div class="banner o" style="margin-top:14px">${svg('cal')}<b>No Sunday School this day:</b> ${esc(S.hol[date])}<span class="sp"></span><button class="btn sm" onclick="unHoliday()">Undo – class was held</button></div>`;
  if(!cid)return h;
  const st=studentsOf(cid);
- if(!st.length)return h+`<div style="margin-top:14px">${emptyBox('No students in '+esc(d.name)+' – Section '+esc(secInfo(cid).c.name),'Add students (one by one or paste a whole list).',`<button class="btn pri" onclick="U.sDept='${d.id}';U.sSec='${cid}';go('students')">Add students</button>`)}</div>`;
+ if(!st.length)return h+`<div style="margin-top:14px">${emptyBox('No students in '+esc(secLabel(cid)),'Add students (one by one or paste a whole list).',`<button class="btn pri" onclick="U.sDept='${d.id}';U.sSec='${cid}';go('students')">Add students</button>`)}</div>`;
  const m=(S.att[date]||{})[cid]||{};const off=((S.off[date]||{})[cid])??'';
- h+=`<div class="card" style="margin-top:14px;position:sticky;top:0;z-index:5"><div class="rsum" id="rsum"></div>
+ h+=`<div class="card" style="margin-top:14px;position:sticky;top:0;z-index:5"><div class="muted" style="font-size:12.5px;margin-bottom:8px">${svg('teach',14)} Class teacher: <b style="color:var(--ink)">${esc(secTeachers(cid)||'not assigned')}</b></div><div class="rsum" id="rsum"></div>
  <div class="ctl" style="margin-top:10px"><div class="fld" style="flex:1;min-width:150px"><label>Offering collected (${esc(S.settings.cur)})</label><input type="number" inputmode="decimal" min="0" step="any" value="${off}" placeholder="0" onchange="setOff('${cid}',this.value)"></div>
  <div class="ctl" style="align-self:flex-end"><button class="btn ok" onclick="markRest('${cid}')">${svg('check',16)} Rest Present</button><button class="btn" onclick="clearSec('${cid}')">Clear</button><button class="btn" onclick="setHoliday()">No class</button></div></div>
  <input type="search" placeholder="Search name or roll…" style="width:100%;margin-top:10px" oninput="filterRoll(this.value)"></div>`;
  h+=`<div class="card" style="margin-top:10px;padding:6px 10px" id="rlist">${st.map(s=>{const v=m[s.id]||'';return `<div class="srow ${v?'m'+v:''}" data-id="${s.id}" data-k="${esc((s.roll+' '+s.name).toLowerCase())}"><div class="roll">${s.roll}</div><div class="nm"><b>${esc(s.name)}</b><small>${s.g==='F'?'Girl':s.g==='M'?'Boy':''}${s.guardian?' · '+esc(s.guardian):''}</small></div><div class="seg">${['P','A','L'].map(k=>`<button class="${k} ${v===k?'on':''}" onclick="mark('${cid}','${s.id}','${k}')">${k}</button>`).join('')}</div></div>`}).join('')}</div>`;
  const all=d.secs,ix=all.findIndex(c=>c.id===cid);const nx=all[ix+1];const nd=S.depts[S.depts.indexOf(d)+1];
- h+=`<div class="ctl" style="margin-top:12px;justify-content:flex-end">${nx?`<button class="btn pri" onclick="setU('rSecSel','${nx.id}')">Next: Section ${esc(nx.name)} →</button>`:nd?`<button class="btn pri" onclick="U.rDeptSel='${nd.id}';U.rSecSel=null;rerender()">Next: ${esc(nd.name)} →</button>`:`<button class="btn pri" onclick="go('dashboard')">Finish → Dashboard</button>`}</div>`;
+ h+=`<div class="ctl" style="margin-top:12px;justify-content:flex-end">${nx?`<button class="btn pri" onclick="setU('rSecSel','${nx.id}')">Next: ${secNm(nx.name)} →</button>`:nd?`<button class="btn pri" onclick="U.rDeptSel='${nd.id}';U.rSecSel=null;rerender()">Next: ${esc(nd.name)} →</button>`:`<button class="btn pri" onclick="go('dashboard')">Finish → Dashboard</button>`}</div>`;
  setTimeout(updSum,0);return h;
 }
 function updSum(){const e=$('#rsum');if(!e)return;const s=secStat(U.date,U.rSecSel);e.innerHTML=`<div><b>${s.T}</b><span>Total</span></div><div class="p"><b>${s.P}</b><span>Present</span></div><div class="a"><b>${s.A}</b><span>Absent</span></div><div class="lv"><b>${s.L}</b><span>Leave</span></div><div><b>${s.U}</b><span>Unmarked</span></div>`}
@@ -528,12 +582,12 @@ function vTeach(){
  h+=`<div class="ctl" style="margin-bottom:12px"><select onchange="setU('date',this.value)">${dateOpts(date)}</select><button class="btn ok" onclick="tRest()">${svg('check',16)} Rest Present</button></div>`;
  h+=`<div class="kpis" style="margin-bottom:14px">${kpi('Teachers',ts.T,'','#4f46e5','#eef2ff','teach')}${kpi('Present',ts.P,pct(ts.P,ts.T)+'%','#16a34a','#dcfce7','check')}${kpi('Absent',ts.A,'','#dc2626','#fee2e2','x')}${kpi('Leave',ts.L,ts.U?ts.U+' not marked':'All marked','#d97706','#fef3c7','leave')}</div>`;
  groups.forEach(g=>{const list=S.teachers.filter(t=>(t.dept||'')===g.id);if(!list.length)return;
-  h+=`<div class="card" style="margin-bottom:10px;padding:10px 12px"><h3 style="margin-bottom:4px"><i class="dot" style="color:${g.color}"></i> ${esc(g.name)} <small>${list.length}</small></h3>${list.map(t=>{const v=m[t.id]||'';return `<div class="srow ${v?'m'+v:''}" data-t="${t.id}"><div class="roll">${esc((t.name||'?')[0])}</div><div class="nm"><b>${esc(t.name)}</b><small>${esc(t.role||'')}${t.sec?' · Section '+esc(secInfo(t.sec)?.c.name||''):''}</small></div><div class="seg">${['P','A','L'].map(k=>`<button class="${k} ${v===k?'on':''}" onclick="tMark('${t.id}','${k}')">${k}</button>`).join('')}</div></div>`}).join('')}</div>`});
+  h+=`<div class="card" style="margin-bottom:10px;padding:10px 12px"><h3 style="margin-bottom:4px"><i class="dot" style="color:${g.color}"></i> ${esc(g.name)} <small>${list.length}</small></h3>${list.map(t=>{const v=m[t.id]||'';return `<div class="srow ${v?'m'+v:''}" data-t="${t.id}"><div class="roll">${esc((t.name||'?')[0])}</div><div class="nm"><b>${esc(t.name)}</b><small>${esc(t.role||'')}${t.sec?' · '+secNm(secInfo(t.sec)?.c.name||''):''}</small></div><div class="seg">${['P','A','L'].map(k=>`<button class="${k} ${v===k?'on':''}" onclick="tMark('${t.id}','${k}')">${k}</button>`).join('')}</div></div>`}).join('')}</div>`});
  return h;
 }
 function tMark(id,v){stamp('t|'+U.date);const m=S.tatt[U.date]=S.tatt[U.date]||{};if(m[id]===v)delete m[id];else m[id]=v;if(!Object.keys(m).length)delete S.tatt[U.date];save();rerender()}
 function tRest(){stamp('t|'+U.date);const m=S.tatt[U.date]=S.tatt[U.date]||{};S.teachers.forEach(t=>{if(!m[t.id])m[t.id]='P'});save();rerender()}
-function secOptsAll(sel,blank){return (blank?`<option value="">— None —</option>`:'')+S.depts.map(d=>`<optgroup label="${esc(d.name)}">${d.secs.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(d.name)} – Section ${esc(c.name)}</option>`).join('')}</optgroup>`).join('')}
+function secOptsAll(sel,blank){return (blank?`<option value="">— None —</option>`:'')+S.depts.map(d=>`<optgroup label="${esc(d.name)}">${d.secs.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(secLabel(c.id))}</option>`).join('')}</optgroup>`).join('')}
 function editTeacher(id){const t=S.teachers.find(x=>x.id===id)||{};
  modal(id?'Edit Teacher':'Add Teacher',`<div class="form"><div class="fld full"><label>Name *</label><input type="text" name="name" value="${esc(t.name||'')}"></div>
  <div class="fld"><label>Role</label><select name="role">${ROLES.map(r=>`<option ${r===(t.role||'Teacher')?'selected':''}>${r}</option>`).join('')}</select></div>
@@ -554,11 +608,11 @@ function vStud(){
  if(U.search.trim()){const q=U.search.toLowerCase().trim();const r=S.students.filter(s=>s.name.toLowerCase().includes(q)||(s.guardian||'').toLowerCase().includes(q)||(s.phone||'').includes(q)).slice(0,200);
   return h+`<div class="card" style="padding:0"><div class="tbl" style="border:0"><table><tr><th>Name</th><th>Class</th><th class="n">Roll</th><th>Guardian</th><th>Phone</th><th class="c">Edit</th></tr>${r.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(secLabel(s.sec))}</td><td class="n">${s.roll}</td><td>${esc(s.guardian||'')}</td><td>${esc(s.phone||'')}</td><td class="c"><button class="btn sm ghost" onclick="editStudent('${s.id}')">${svg('edit',15)}</button></td></tr>`).join('')||'<tr><td colspan="6" class="muted">No match</td></tr>'}</table></div></div>`}
  h+=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.sDept='${x.id}';U.sSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)} <span style="font-weight:500;opacity:.7">${x.secs.reduce((s,c)=>s+studentsOf(c.id).length,0)}</span></button>`).join('')}<button class="chip" onclick="editDept()">＋ Department</button></div>
- <div class="chips">${d.secs.map(c=>`<button class="chip ${c.id===cid?'on':''}" onclick="setU('sSec','${c.id}')">Section ${esc(c.name)} <span style="font-weight:500;opacity:.7">${studentsOf(c.id).length}</span></button>`).join('')}</div></div>`;
+ <div class="chips">${d.secs.map(c=>`<button class="chip ${c.id===cid?'on':''}" onclick="setU('sSec','${c.id}')">${secNm(c.name)} <span style="font-weight:500;opacity:.7">${studentsOf(c.id).length}</span></button>`).join('')}</div></div>`;
  if(!cid)return h+`<div style="margin-top:14px">${emptyBox('No sections','Add sections to this department in Setup.')}</div>`;
  const st=studentsOf(cid),cap=+S.settings.cap||60,fill=Math.min(st.length/cap*100,100);
  const teachers=S.teachers.filter(t=>t.sec===cid).map(t=>esc(t.name)).join(', ');
- h+=`<div class="card" style="margin-top:14px"><div class="ctl" style="margin-bottom:12px"><div><b style="font-size:16px">${esc(d.name)} – Section ${esc(secInfo(cid).c.name)}</b><div class="muted" style="font-size:12px">Teacher: ${teachers||'not assigned'}</div></div><span class="sp"></span>
+ h+=`<div class="card" style="margin-top:14px"><div class="ctl" style="margin-bottom:12px"><div><b style="font-size:16px">${esc(d.name)} – ${secNm(secInfo(cid).c.name)}</b><div class="muted" style="font-size:12px">Teacher: ${teachers||'not assigned'}</div></div><span class="sp"></span>
  <div class="ctl"><div class="capbar"><i style="width:${fill}%;background:${st.length>cap?'#dc2626':'#4f46e5'}"></i></div><b>${st.length}/${cap}</b></div></div>
  <div class="ctl noprint" style="margin-bottom:12px"><button class="btn pri" onclick="editStudent()">${svg('plus',16)} Add Student</button><button class="btn" onclick="bulkStudents()">Paste a list</button><label class="btn">${svg('dl',16)} Upload Excel<input type="file" accept=".xlsx,.csv" hidden onchange="importFile(this,'students')"></label><button class="btn" onclick="dlTemplate('students')">Excel template</button><button class="btn" onclick="renumber('${cid}')">Re-number rolls A–Z</button><button class="btn" onclick="exportStudents('${cid}')">${svg('dl',16)} CSV</button></div>
  ${st.length?`<div class="tbl"><table><tr><th class="n">Roll</th><th>Name</th><th>Gender</th><th>Guardian</th><th>Phone</th><th class="n">Attendance</th><th class="c">Actions</th></tr>${st.map(s=>{const r=stuRange(s,heldDates());const p=pct(r.P,r.M);return `<tr><td class="n"><b>${s.roll}</b></td><td><b>${esc(s.name)}</b></td><td>${s.g==='F'?'Girl':s.g==='M'?'Boy':''}</td><td>${esc(s.guardian||'')}</td><td>${esc(s.phone||'')}</td><td class="n">${r.M?`<b class="${pctCls(p)}">${p}%</b> <span class="muted">(${r.P}/${r.M})</span>`:'<span class="muted">—</span>'}</td><td class="c"><button class="btn sm ghost" title="Edit / move" onclick="editStudent('${s.id}')">${svg('edit',15)}</button><button class="btn sm ghost" title="Delete" onclick="delStudent('${s.id}')">${svg('trash',15)}</button></td></tr>`}).join('')}</table></div>`:`<div class="empty">No students yet. Use <b>Add Student</b> or <b>Paste a list</b> to add up to ${cap} students.</div>`}</div>`;
@@ -588,30 +642,29 @@ function exportStudents(cid){const rows=[['Roll','Name','Gender','Guardian','Pho
 
 /* ============ REPORTS ============ */
 function vRep(){
- const tabs=[['weekly','Weekly'],['monthly','Monthly'],['annual','Annual'],['register','Roll Register'],['students','Student %'],['teachers','Teachers'],['offering','Offering']];
- let h=topbar('Reports','Weekly, monthly & annual summaries · print or export to Excel (CSV)',`<div class="ctl"><button class="btn" onclick="doPrint()">${svg('print',16)} Print</button><button class="btn pri" onclick="exportXLSX()">${svg('dl',16)} Excel</button></div>`);
+ const tabs=[['weekly','Weekly'],['monthly','Monthly'],['annual','Annual'],['register','Attendance Register'],['students','Student %'],['teachers','Teachers'],['offering','Offering']];
+ let h=topbar('Reports','Weekly, monthly & annual summaries · print or export to Excel',`<div class="ctl"><button class="btn" onclick="doPrint()">${svg('print',16)} Print</button><button class="btn pri" onclick="exportXLSX()">${svg('dl',16)} Excel</button></div>`);
  h+=`<div class="tabs">${tabs.map(([k,l])=>`<button class="${U.rTab===k?'on':''}" onclick="setU('rTab','${k}')">${l}</button>`).join('')}</div>`;
  if(!U.rMonth)U.rMonth=U.date.slice(0,7);if(!U.rRange)U.rRange=U.rMonth;
  const fn={weekly:rWeekly,monthly:rMonthly,annual:rAnnual,register:rRegister,students:rStudents,teachers:rTeachers,offering:rOffering}[U.rTab];
- const [ctl,title,period,body]=fn();
- return h+`<div class="card noprint" style="margin-bottom:12px"><div class="ctl">${ctl}</div></div><div class="card" id="rep"><div class="rh"><h2>${esc(S.settings.org)}</h2><div>${esc(S.settings.sub)}${S.settings.place?' · '+esc(S.settings.place):''}</div><div style="margin-top:6px;font-weight:700;font-size:14px">${title}</div><div>${period}</div></div>
- <h3 class="noprint">${title} <small>${period}</small></h3>${body}${sigBlock()}<div class="muted" style="font-size:11px;margin-top:10px">Generated ${new Date().toLocaleString('en-IN')} · ${esc(S.settings.org)} Sunday School Attendance</div></div>`;
+ const [ctl,title,period,body,opt]=fn();
+ return h+`<div class="card noprint" style="margin-bottom:12px"><div class="ctl">${ctl}</div></div>`+paper(Object.assign({tag:title,info:[['Report period',period]],body},opt||{}))
 }
 const rangeSel=(withS=true)=>`<select onchange="setU('rRange',this.value)">${monthOpts(U.rRange,withS)}</select>`;
 function rWeekly(){const d=U.date,a=aggDate(d),t=tStat(d);
  let b=S.hol[d]?`<div class="banner o">No Sunday School on this day — ${esc(S.hol[d])}</div>`:'';
- b+=`<div class="tbl"><table data-title="Weekly report ${fmtD(d)}"><tr><th>Department</th><th>Section</th><th class="n">Enrolled</th><th class="n">Present</th><th class="n">Absent</th><th class="n">Leave</th><th class="n">Not marked</th><th class="n">Attendance %</th><th class="n">Offering</th></tr>`;
- a.depts.forEach(x=>{x.secs.forEach((s,i)=>{const M=s.P+s.A+s.L;b+=`<tr><td>${i?'':'<b>'+esc(x.d.name)+'</b>'}</td><td>${esc(s.c.name)}</td><td class="n">${s.T}</td><td class="n">${s.P}</td><td class="n">${s.A}</td><td class="n">${s.L}</td><td class="n">${s.U}</td><td class="n">${M?pct(s.P,M)+'%':'—'}</td><td class="n">${s.off?money(s.off):'—'}</td></tr>`});
-  const M=x.P+x.A+x.L;b+=`<tr class="sub"><td>${esc(x.d.name)} total</td><td></td><td class="n">${x.T}</td><td class="n">${x.P}</td><td class="n">${x.A}</td><td class="n">${x.L}</td><td class="n">${x.U}</td><td class="n">${pct(x.P,M)}%</td><td class="n">${money(x.off)}</td></tr>`});
- b+=`<tr class="tot"><td>GRAND TOTAL</td><td></td><td class="n">${a.T}</td><td class="n">${a.P}</td><td class="n">${a.A}</td><td class="n">${a.L}</td><td class="n">${a.U}</td><td class="n">${pct(a.P,a.M)}%</td><td class="n">${money(a.off)}</td></tr></table></div>`;
+ b+=`<div class="tbl"><table data-title="Weekly report ${fmtD(d)}"><tr><th>Department</th><th>Section</th><th>Teacher</th><th class="n">Enrolled</th><th class="n">Present</th><th class="n">Absent</th><th class="n">Leave</th><th class="n">Not marked</th><th class="n">Attendance %</th><th class="n">Offering</th></tr>`;
+ a.depts.forEach(x=>{x.secs.forEach((s,i)=>{const M=s.P+s.A+s.L;b+=`<tr><td>${i?'':'<b>'+esc(x.d.name)+'</b>'}</td><td>${esc(s.c.name)}</td><td>${esc(secTeachers(s.c.id))}</td><td class="n">${s.T}</td><td class="n">${s.P}</td><td class="n">${s.A}</td><td class="n">${s.L}</td><td class="n">${s.U}</td><td class="n">${M?pct(s.P,M)+'%':'—'}</td><td class="n">${s.off?money(s.off):'—'}</td></tr>`});
+  const M=x.P+x.A+x.L;b+=`<tr class="sub"><td>${esc(x.d.name)} total</td><td></td><td></td><td class="n">${x.T}</td><td class="n">${x.P}</td><td class="n">${x.A}</td><td class="n">${x.L}</td><td class="n">${x.U}</td><td class="n">${pct(x.P,M)}%</td><td class="n">${money(x.off)}</td></tr>`});
+ b+=`<tr class="tot"><td>GRAND TOTAL</td><td></td><td></td><td class="n">${a.T}</td><td class="n">${a.P}</td><td class="n">${a.A}</td><td class="n">${a.L}</td><td class="n">${a.U}</td><td class="n">${pct(a.P,a.M)}%</td><td class="n">${money(a.off)}</td></tr></table></div>`;
  b+=`<div class="tbl" style="margin-top:12px"><table data-title="Teachers"><tr><th>Teachers</th><th class="n">Total</th><th class="n">Present</th><th class="n">Absent</th><th class="n">Leave</th><th class="n">Not marked</th></tr><tr><td>All teachers</td><td class="n">${t.T}</td><td class="n">${t.P}</td><td class="n">${t.A}</td><td class="n">${t.L}</td><td class="n">${t.U}</td></tr></table></div>`;
  return[`<select onchange="setU('date',this.value)">${dateOpts(d)}</select>`,'Weekly Attendance Report','Sunday, '+fmtD(d),b]}
 function rMonthly(){const r=U.rRange==='session'?U.rMonth:U.rRange;const dates=rangeDates(r);
- let b=`<div class="tbl"><table data-title="Section-wise ${monthName(r)}"><tr><th>Department</th><th>Section</th><th class="n">Enrolled</th><th class="n">Sundays</th><th class="n">Total P</th><th class="n">Total A</th><th class="n">Total L</th><th class="n">Avg present</th><th class="n">Attendance %</th><th class="n">Offering</th></tr>`;
+ let b=`<div class="tbl"><table data-title="Section-wise ${monthName(r)}"><tr><th>Department</th><th>Section</th><th>Teacher</th><th class="n">Enrolled</th><th class="n">Sundays</th><th class="n">Total P</th><th class="n">Total A</th><th class="n">Total L</th><th class="n">Avg present</th><th class="n">Attendance %</th><th class="n">Offering</th></tr>`;
  const G={T:0,P:0,A:0,L:0,off:0};
- S.depts.forEach(d=>{const D={T:0,P:0,A:0,L:0,off:0};d.secs.forEach((c,i)=>{const s=secRange(c.id,dates),T=studentsOf(c.id).length;b+=`<tr><td>${i?'':'<b>'+esc(d.name)+'</b>'}</td><td>${esc(c.name)}</td><td class="n">${T}</td><td class="n">${s.held}</td><td class="n">${s.P}</td><td class="n">${s.A}</td><td class="n">${s.L}</td><td class="n">${s.held?(s.P/s.held).toFixed(1):'—'}</td><td class="n">${s.M?pct(s.P,s.M)+'%':'—'}</td><td class="n">${money(s.off)}</td></tr>`;D.T+=T;D.P+=s.P;D.A+=s.A;D.L+=s.L;D.off+=s.off});
-  b+=`<tr class="sub"><td>${esc(d.name)} total</td><td></td><td class="n">${D.T}</td><td class="n"></td><td class="n">${D.P}</td><td class="n">${D.A}</td><td class="n">${D.L}</td><td class="n">${dates.length?(D.P/dates.length).toFixed(1):'—'}</td><td class="n">${pct(D.P,D.P+D.A+D.L)}%</td><td class="n">${money(D.off)}</td></tr>`;['T','P','A','L','off'].forEach(k=>G[k]+=D[k])});
- b+=`<tr class="tot"><td>GRAND TOTAL</td><td></td><td class="n">${G.T}</td><td class="n">${dates.length}</td><td class="n">${G.P}</td><td class="n">${G.A}</td><td class="n">${G.L}</td><td class="n">${dates.length?(G.P/dates.length).toFixed(1):'—'}</td><td class="n">${pct(G.P,G.P+G.A+G.L)}%</td><td class="n">${money(G.off)}</td></tr></table></div>`;
+ S.depts.forEach(d=>{const D={T:0,P:0,A:0,L:0,off:0};d.secs.forEach((c,i)=>{const s=secRange(c.id,dates),T=studentsOf(c.id).length;b+=`<tr><td>${i?'':'<b>'+esc(d.name)+'</b>'}</td><td>${esc(c.name)}</td><td>${esc(secTeachers(c.id))}</td><td class="n">${T}</td><td class="n">${s.held}</td><td class="n">${s.P}</td><td class="n">${s.A}</td><td class="n">${s.L}</td><td class="n">${s.held?(s.P/s.held).toFixed(1):'—'}</td><td class="n">${s.M?pct(s.P,s.M)+'%':'—'}</td><td class="n">${money(s.off)}</td></tr>`;D.T+=T;D.P+=s.P;D.A+=s.A;D.L+=s.L;D.off+=s.off});
+  b+=`<tr class="sub"><td>${esc(d.name)} total</td><td></td><td></td><td class="n">${D.T}</td><td class="n"></td><td class="n">${D.P}</td><td class="n">${D.A}</td><td class="n">${D.L}</td><td class="n">${dates.length?(D.P/dates.length).toFixed(1):'—'}</td><td class="n">${pct(D.P,D.P+D.A+D.L)}%</td><td class="n">${money(D.off)}</td></tr>`;['T','P','A','L','off'].forEach(k=>G[k]+=D[k])});
+ b+=`<tr class="tot"><td>GRAND TOTAL</td><td></td><td></td><td class="n">${G.T}</td><td class="n">${dates.length}</td><td class="n">${G.P}</td><td class="n">${G.A}</td><td class="n">${G.L}</td><td class="n">${dates.length?(G.P/dates.length).toFixed(1):'—'}</td><td class="n">${pct(G.P,G.P+G.A+G.L)}%</td><td class="n">${money(G.off)}</td></tr></table></div>`;
  b+=`<h3 style="margin-top:16px">Sunday-by-Sunday</h3><div class="tbl"><table data-title="Sunday-by-Sunday ${monthName(r)}"><tr><th>Date</th><th class="n">Enrolled</th><th class="n">Present</th><th class="n">Absent</th><th class="n">Leave</th><th class="n">Attendance %</th><th class="n">Offering</th><th class="n">Teachers present</th></tr>${sundays().filter(d=>d.startsWith(r)).map(d=>{if(S.hol[d])return `<tr><td>${fmtD(d)}</td><td colspan="7" class="muted">No class — ${esc(S.hol[d])}</td></tr>`;if(!isHeld(d))return `<tr><td>${fmtD(d)}</td><td colspan="7" class="muted">Not recorded</td></tr>`;const a=aggDate(d),t=tStat(d);return `<tr><td>${fmtD(d)}</td><td class="n">${a.T}</td><td class="n">${a.P}</td><td class="n">${a.A}</td><td class="n">${a.L}</td><td class="n">${pct(a.P,a.M)}%</td><td class="n">${money(a.off)}</td><td class="n">${t.P}/${t.T}</td></tr>`}).join('')}</table></div>`;
  return[`<select onchange="U.rRange=this.value;U.rMonth=this.value;rerender()">${monthOpts(r,false)}</select>`,'Monthly Attendance Report',monthName(r)+` · ${dates.length} Sunday(s) held`,b]}
 function rAnnual(){const ms=months();let G={P:0,A:0,L:0,off:0,n:0,tp:0};const pts=[];
@@ -623,16 +676,21 @@ function rAnnual(){const ms=months();let G={P:0,A:0,L:0,off:0,n:0,tp:0};const pt
  const held=heldDates();
  b+=`<h3 style="margin-top:16px">Department-wise (whole session)</h3><div class="tbl"><table data-title="Department-wise ${S.settings.session}"><tr><th>Department</th><th class="n">Sections</th><th class="n">Enrolled</th><th class="n">Total present</th><th class="n">Total absent</th><th class="n">Total leave</th><th class="n">Attendance %</th><th class="n">Offering</th></tr>${S.depts.map(d=>{let T=0,P=0,A=0,L=0,off=0;d.secs.forEach(c=>{T+=studentsOf(c.id).length;const s=secRange(c.id,held);P+=s.P;A+=s.A;L+=s.L;off+=s.off});return `<tr><td><i class="dot" style="color:${d.color}"></i> <b>${esc(d.name)}</b></td><td class="n">${d.secs.length}</td><td class="n">${T}</td><td class="n">${P}</td><td class="n">${A}</td><td class="n">${L}</td><td class="n">${pct(P,P+A+L)}%</td><td class="n">${money(off)}</td></tr>`}).join('')}</table></div>`;
  return[`<span class="muted">Session ${esc(S.settings.session)} · ${fmtD(S.settings.start)} to ${fmtD(S.settings.end)} (change in Setup)</span>`,'Annual Attendance Report','Session '+esc(S.settings.session)+` · ${G.n} Sundays held`,b]}
-function rRegister(){let d=deptOf(U.rgDept)||S.depts[0];if(!d)return['','Roll Register','',emptyBox('No departments','')];U.rgDept=d.id;if(!d.secs.find(c=>c.id===U.rgSec))U.rgSec=d.secs[0]?.id;const cid=U.rgSec;
- const ctl=`<select onchange="U.rgDept=this.value;U.rgSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('rgSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>Section ${esc(c.name)}</option>`).join('')}</select>${rangeSel()}`;
- if(!cid)return[ctl,'Roll Register','','<div class="muted">No sections</div>'];
- const dates=rangeDates(U.rRange).filter(x=>secStat(x,cid).taken),st=studentsOf(cid);
- let b=`<p class="muted noprint landscape-hint" style="font-size:12px">Tip: for many Sundays, print in Landscape.</p><div class="tbl"><table data-title="Roll register ${secLabel(cid)}"><tr><th class="n">Roll</th><th>Name</th>${dates.map(x=>`<th class="c">${fmtS(x)}</th>`).join('')}<th class="n">P</th><th class="n">A</th><th class="n">L</th><th class="n">%</th></tr>`;
- st.forEach(s=>{let P=0,A=0,L=0;const cells=dates.map(x=>{const v=((S.att[x]||{})[cid]||{})[s.id]||'';if(v==='P')P++;else if(v==='A')A++;else if(v==='L')L++;return `<td class="c">${v?`<span class="cell ${v}">${v}</span>`:'·'}</td>`}).join('');const p=pct(P,P+A+L);b+=`<tr><td class="n">${s.roll}</td><td><b>${esc(s.name)}</b></td>${cells}<td class="n">${P}</td><td class="n">${A}</td><td class="n">${L}</td><td class="n"><b class="${pctCls(p)}">${P+A+L?p+'%':'—'}</b></td></tr>`});
- b+=`<tr class="tot"><td></td><td>Present / Offering</td>${dates.map(x=>{const s=secStat(x,cid);return `<td class="c" title="${money(s.off)}">${s.P}${s.off?'<br><small>'+num(s.off)+'</small>':''}</td>`}).join('')}<td colspan="4"></td></tr></table></div>`;
+function rRegister(){let d=deptOf(U.rgDept)||S.depts[0];if(!d)return['','Attendance Register','',emptyBox('No departments','')];U.rgDept=d.id;if(!d.secs.find(c=>c.id===U.rgSec))U.rgSec=d.secs[0]?.id;const cid=U.rgSec;
+ const ctl=`<select onchange="U.rgDept=this.value;U.rgSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('rgSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${secNm(c.name)}</option>`).join('')}</select>${rangeSel()}`;
+ if(!cid)return[ctl,'Attendance Register','','<div class="muted">No sections</div>'];
+ const dates=rangeDates(U.rRange).filter(x=>secStat(x,cid).taken),st=studentsOf(cid),teacher=secTeachers(cid);
+ let tP=0,tA=0,tL=0,pcts=[],low=0;
+ let b=`<div class="tbl"><table data-title="Attendance register ${secLabel(cid)}"><tr><th class="c">Roll</th><th>Student Name</th>${dates.map(x=>`<th class="c">${fmtS(x)}</th>`).join('')}<th class="c">P</th><th class="c">A</th><th class="c">L</th><th class="c">%</th></tr>`;
+ st.forEach(s=>{let P=0,A=0,L=0;const cells=dates.map(x=>{const v=((S.att[x]||{})[cid]||{})[s.id]||'';if(v==='P')P++;else if(v==='A')A++;else if(v==='L')L++;return `<td class="c">${v?`<span class="cell ${v}">${v}</span>`:'·'}</td>`}).join('');const p=pct(P,P+A+L);tP+=P;tA+=A;tL+=L;if(P+A+L){pcts.push(p);if(p<S.settings.low)low++}
+  b+=`<tr><td class="c"><b>${s.roll}</b></td><td><b>${esc(s.name)}</b></td>${cells}<td class="c ok"><b>${P}</b></td><td class="c bad"><b>${A}</b></td><td class="c lvc"><b>${L}</b></td><td class="c"><b class="${pctCls(p)}">${P+A+L?p+'%':'—'}</b></td></tr>`});
+ b+=`<tr class="tot"><td></td><td>Present / Offering</td>${dates.map(x=>{const q=secStat(x,cid);return `<td class="c">${q.P}${q.off?'<br><small>'+num(q.off)+'</small>':''}</td>`}).join('')}<td class="c">${tP}</td><td class="c">${tA}</td><td class="c">${tL}</td><td class="c">${pct(tP,tP+tA+tL)}%</td></tr></table></div>`;
  if(!st.length)b='<div class="empty">No students in this section.</div>';
- const teachers=S.teachers.filter(t=>t.sec===cid).map(t=>t.name).join(', ');
- return[ctl,'Sunday School Roll Register',`${esc(secLabel(cid))} · ${rangeLabel(U.rRange)}${teachers?' · Teacher: '+esc(teachers):''}`,b]}
+ const off=dates.reduce((a,x)=>a+secStat(x,cid).off,0),avg=pcts.length?Math.round(pcts.reduce((a,c)=>a+c,0)/pcts.length*10)/10:0;
+ const opt={sub:rangeLabel(U.rRange),land:dates.length>12,teacher:teacher||'',
+  info:[['Department',esc(d.name)],['Section',esc(secInfo(cid).c.name)],['Class Teacher',esc(teacher||'—')],['Period',rangeLabel(U.rRange)],['Sundays held',dates.length]],
+  tiles:[['Students',st.length,'#312e81','#eef2ff'],['Total present',tP,'#15803d','#dcfce7'],['Total absent',tA,'#b91c1c','#fee2e2'],['Total leave',tL,'#b45309','#fef3c7'],['Avg attendance',avg+'%','#0e7490','#ecfeff'],[`Below ${S.settings.low}%`,low,'#b91c1c','#fff1f2'],['Offering',money(off),'#6d28d9','#ede9fe']]};
+ return[ctl,'Attendance Register',`${esc(secLabel(cid))} · ${rangeLabel(U.rRange)}${teacher?' · Teacher: '+esc(teacher):''}`,b,opt]}
 function rStudents(){const dates=rangeDates(U.rRange);const f=U.rDept||'all';const low=+S.settings.low;
  let rows=[];S.depts.forEach(d=>{if(f!=='all'&&d.id!==f)return;d.secs.forEach(c=>studentsOf(c.id).forEach(s=>{const r=stuRange(s,dates);rows.push({s,d,c,r,p:pct(r.P,r.M)})}))});
  if(U.rLow)rows=rows.filter(x=>x.r.M&&x.p<low);rows.sort((a,b)=>a.p-b.p||a.s.name.localeCompare(b.s.name));
@@ -648,7 +706,20 @@ function rOffering(){const dates=rangeDates(U.rRange);
  b+=`<tr class="tot"><td>TOTAL (${esc(S.settings.cur)})</td>${tot.map(v=>`<td class="n">${num(v)}</td>`).join('')}<td class="n">${num(G)}</td></tr></table></div>`;
  b+=`<div class="noprint" style="margin-top:14px"><h3>Offering by department</h3>${S.depts.map((d,i)=>hbar(`<i class="dot" style="color:${d.color}"></i> ${esc(d.name)}`,[{v:tot[i],c:d.color,n:d.name},{v:Math.max(...tot,1)-tot[i],c:'transparent',n:''}],money(tot[i]))).join('')}</div>`;
  return[rangeSel(),'Offering Collection Report',rangeLabel(U.rRange)+' · Total '+money(G),b]}
-function doPrint(){try{window.print()}catch(e){toast('Printing is not available here')}}
+
+function secTeachers(cid){return S.teachers.filter(t=>t.sec===cid).map(t=>t.name).join(', ')}
+function paper(o){const s=S.settings;const body=String(o.body||'').replace(/<table([^>]*)>\s*<tr>(\s*<th[\s\S]*?<\/tr>)/g,'<table$1><thead><tr>$2</thead><tbody>').replace(/<\/table>/g,'</tbody></table>');
+ const info=o.info||[];
+ return `<div class="paper" id="rep"${o.land?' data-land="1"':''}><div class="rh"><h2>${esc(s.org)}</h2><div>${o.tag}</div><div>${info.map(i=>i[0]+': '+String(i[1]).replace(/<[^>]+>/g,'')).join(' · ')}</div></div>
+ <div class="pp-head"><div class="pp-logo">${svg('cross',28)}</div><div class="pp-org"><b>${esc(s.org)}</b><span>${esc(s.sub)}${s.place?' · '+esc(s.place):''}</span></div><div class="pp-tag"><b>${o.tag}</b><small>${o.sub||'Session '+esc(s.session)}</small></div></div>
+ ${info.length?`<div class="pp-info">${info.map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join('')}</div>`:'<div style="height:12px"></div>'}
+ ${body}
+ ${o.tiles?`<div class="pp-tiles">${o.tiles.map(([l,v,c,b])=>`<div style="--c:${c};--b:${b}"><b>${v}</b><span>${l}</span></div>`).join('')}</div>`:''}
+ ${sigBlock(o.teacher)}
+ <div class="pp-foot"><span>${esc(s.org)} · ${esc(s.sub)} · Attendance & Results</span><span>Printed ${new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div></div>`}
+function doPrint(){const land=document.querySelector('#rep[data-land]');let st=null;if(land){st=document.createElement('style');st.textContent='@page{size:A4 landscape;margin:6mm}';document.head.appendChild(st)}
+ try{window.print()}catch(e){toast('Printing is not available here')}if(st)setTimeout(()=>st.remove(),1500)}
+
 function exportCSV(){const out=[];out.push('"'+S.settings.org+' – '+S.settings.sub+'"');const h=document.querySelector('#rep .rh');if(h)[...h.querySelectorAll('div')].slice(1).forEach(x=>out.push('"'+x.innerText.replace(/"/g,'""')+'"'));out.push('');
  document.querySelectorAll('#rep table').forEach(t=>{if(t.dataset.title)out.push('"'+t.dataset.title+'"');t.querySelectorAll('tr').forEach(tr=>out.push([...tr.children].map(td=>'"'+td.innerText.replace(/\s+/g,' ').trim().replace(/"/g,'""')+'"').join(',')));out.push('')});
  download(`SundaySchool_${U.rTab}_report_${iso(new Date())}.csv`,'﻿'+out.join('\r\n'),'text/csv')}
@@ -661,7 +732,7 @@ function vSetup(){
   h+=`<div class="ctl" style="margin-bottom:12px"><button class="btn pri" onclick="editDept()">${svg('plus',16)} Add Department</button><span class="muted">${S.depts.length} departments · ${S.depts.reduce((s,d)=>s+d.secs.length,0)} sections</span></div>`;
   h+=S.depts.map((d,i)=>{const n=d.secs.reduce((s,c)=>s+studentsOf(c.id).length,0);return `<div class="dcard card" style="--c:${d.color}"><div class="hd"><b>${esc(d.name)}</b><span class="pill">${d.secs.length} sections</span><span class="pill g">${n} students</span><span class="sp"></span>
   <button class="btn sm ghost" title="Move up" ${i?'':'disabled'} onclick="moveDept(${i},-1)">${svg('up',15)}</button><button class="btn sm ghost" title="Move down" ${i<S.depts.length-1?'':'disabled'} onclick="moveDept(${i},1)">${svg('down',15)}</button><button class="btn sm" onclick="editDept('${d.id}')">${svg('edit',14)} Edit</button><button class="btn sm" style="color:var(--bad)" onclick="delDept('${d.id}')">${svg('trash',14)} Delete</button></div>
-  <div class="chips">${d.secs.map(c=>`<span class="sc">Section ${esc(c.name)} <span class="muted" style="font-weight:500">(${studentsOf(c.id).length})</span><button title="Rename" onclick="renSec('${d.id}','${c.id}')">${svg('edit',13)}</button><button title="Delete section" onclick="delSec('${d.id}','${c.id}')">${svg('x',13)}</button></span>`).join('')}<button class="btn sm" onclick="addSec('${d.id}')">${svg('plus',14)} Section</button></div></div>`}).join('')||emptyBox('No departments','Add your first department.');
+  <div class="chips">${d.secs.map(c=>`<span class="sc">${secNm(c.name)} <span class="muted" style="font-weight:500">(${studentsOf(c.id).length})</span><button title="Rename" onclick="renSec('${d.id}','${c.id}')">${svg('edit',13)}</button><button title="Delete section" onclick="delSec('${d.id}','${c.id}')">${svg('x',13)}</button></span>`).join('')}<button class="btn sm" onclick="addSec('${d.id}')">${svg('plus',14)} Section</button></div></div>`}).join('')||emptyBox('No departments','Add your first department.');
  } else if(U.sTab==='settings'){
   const s=S.settings;
   h+=`<div class="card"><div class="form">
@@ -692,7 +763,7 @@ function purgeSec(cid){S.del=S.del||{};studentsOf(cid).forEach(s=>S.del[s.id]=no
 async function delDept(id){const d=deptOf(id);const n=d.secs.reduce((s,c)=>s+studentsOf(c.id).length,0);if(!await ask(`Delete department <b>${esc(d.name)}</b> with ${d.secs.length} sections and <b>${n} students</b>? All its attendance and offering records will be removed. Consider downloading a backup first.`,'Delete department',true))return;d.secs.forEach(c=>purgeSec(c.id));S.teachers.forEach(t=>{if(t.dept===id){t.dept='';t.sec='';t.u=now()}});S.depts=S.depts.filter(x=>x.id!==id);(S.del=S.del||{})[id]=now();save();rerender();toast('Department deleted')}
 function addSec(did){const d=deptOf(did);const used=new Set(d.secs.map(c=>c.name));let nm='';for(let i=0;i<26;i++){const l=String.fromCharCode(65+i);if(!used.has(l)){nm=l;break}}d.secs.push({id:newId('c'),name:nm||String(d.secs.length+1)});d.u=now();save();rerender();toast('Section '+(nm||'')+' added')}
 function renSec(did,cid){const c=deptOf(did).secs.find(x=>x.id===cid);modal('Rename Section',`<div class="fld"><label>Section name</label><input type="text" name="n" value="${esc(c.name)}"></div>`,[{t:'Cancel'},{t:'Save',cls:'pri',fn:w=>{c.name=val(w,'n')||c.name;deptOf(did).u=now();save();rerender()}}])}
-async function delSec(did,cid){const d=deptOf(did),c=d.secs.find(x=>x.id===cid),n=studentsOf(cid).length;if(!await ask(`Delete <b>${esc(d.name)} – Section ${esc(c.name)}</b>${n?` and its <b>${n} students</b> with their attendance`:''}?`,'Delete section',true))return;purgeSec(cid);d.secs=d.secs.filter(x=>x.id!==cid);d.u=now();save();rerender()}
+async function delSec(did,cid){const d=deptOf(did),c=d.secs.find(x=>x.id===cid),n=studentsOf(cid).length;if(!await ask(`Delete <b>${esc(secLabel(c.id))}</b>${n?` and its <b>${n} students</b> with their attendance`:''}?`,'Delete section',true))return;purgeSec(cid);d.secs=d.secs.filter(x=>x.id!==cid);d.u=now();save();rerender()}
 function saveSettings(){const g=id=>document.getElementById(id).value.trim();const st=g('st_start'),en=g('st_end');if(!st||!en||st>=en){toast('Session end must be after start');return}
  Object.assign(S.settings,{org:g('st_org')||'Sunday School',sub:g('st_sub'),place:g('st_place'),session:g('st_session'),cur:g('st_cur')||'₹',start:st,end:en,cap:Math.max(1,parseInt(g('st_cap'))||60),low:Math.min(100,Math.max(1,parseInt(g('st_low'))||75)),supt:g('st_supt'),secy:g('st_secy')});S.su=now();U.date=null;save();render();toast('Settings saved')}
 function backup(){S.lastBackup=Date.now();save();download(`SJS_SundaySchool_Backup_${iso(new Date())}.json`,JSON.stringify(S),'application/json')}
@@ -853,7 +924,7 @@ function editDept(id){const d=id?deptOf(id):null;let col=d?d.color:COLORS[S.dept
   const apply=()=>{if(!d)S.depts.push({id:newId('d'),name,color:col,secs:keep.map(r=>({id:newId('c'),name:r.name})),u:now(),o:maxO()+1});
    else{removed.forEach(c=>purgeSec(c.id));d.name=name;d.color=col;d.secs=keep.map(r=>r.id?Object.assign(d.secs.find(c=>c.id===r.id),{name:r.name}):{id:newId('c'),name:r.name});d.u=now()}
    save();rerender();toast(d?'Department updated':'Department "'+esc(name)+'" added')};
-  if(lost){ask(`Removing ${removed.map(c=>'Section '+esc(c.name)).join(', ')} will delete <b>${lost} students</b> and their attendance. Continue?`,'Remove',true).then(ok=>{if(ok){apply();w.remove()}});return false}
+  if(lost){ask(`Removing ${removed.map(c=>secNm(c.name)).join(', ')} will delete <b>${lost} students</b> and their attendance. Continue?`,'Remove',true).then(ok=>{if(ok){apply();w.remove()}});return false}
   apply()}}]);
  const ed=w.querySelector('#secEd');
  const draw=()=>{ed.innerHTML=rows.map((r,i)=>`<div class="secrow"><span class="muted" style="width:58px;font-size:12.5px">Section</span><input type="text" value="${esc(r.name)}" data-i="${i}"><span class="muted" style="font-size:12px;width:78px">${r.id?studentsOf(r.id).length+' students':'new'}</span><button type="button" class="btn sm ghost" title="Remove" data-del="${i}">${svg('trash',14)}</button></div>`).join('')||'<div class="muted">No sections – add one.</div>';
@@ -864,18 +935,18 @@ function editDept(id){const d=id?deptOf(id):null;let col=d?d.color:COLORS[S.dept
  w.querySelectorAll('.cdot').forEach(b=>b.onclick=()=>{col=b.dataset.c;w.querySelectorAll('.cdot').forEach(x=>x.classList.toggle('on',x===b))})}
 
 /* ============ v2: Signatures ============ */
-function sigBlock(){const s=S.settings;const b=(t,n,img)=>`<div class="sb"><div class="im">${img?`<img src="${img}" alt="${t} signature">`:''}</div><div class="ln">${t}${n?`<small>${esc(n)}</small>`:''}</div></div>`;
- return `<div class="sig">${b('Secretary',s.secy,s.sig_secy)}${b('Superintendent',s.supt,s.sig_supt)}</div>`}
+function sigBlock(teacher){const s=S.settings;const b=(t,n,img)=>`<div class="sb"><div class="im">${img?`<img src="${img}" alt="${t} signature">`:''}</div><div class="ln">${t}${n?`<small>${esc(n)}</small>`:''}</div></div>`;
+ return `<div class="sig">${teacher!==undefined?b('Class Teacher',teacher,''):''}${b('Secretary',s.secy,s.sig_secy)}${b('Superintendent',s.supt,s.sig_supt)}</div>`}
 function vSign(){const s=S.settings;setTimeout(()=>{initPad('secy');initPad('supt')},0);
  return `<div class="g2">${['secy','supt'].map(k=>{const t=k==='secy'?'Secretary':'Superintendent';return `<div class="card"><h3>${svg('edit',18)} ${t} signature</h3><div class="fld"><label>${t} name</label><input type="text" id="sn_${k}" value="${esc(s[k]||'')}" placeholder="Full name"></div>
- <p class="muted" style="font-size:12px;margin:10px 0 6px">Sign inside the box with your finger or mouse – or upload a photo/scan of the signature.</p><canvas class="sigpad" id="pad_${k}" width="600" height="200"></canvas>
+ <p class="muted" style="font-size:12px;margin:10px 0 6px">Sign inside the box with your finger or mouse – or upload a photo/scan of the signature.</p><canvas class="sigpad" id="pad_${k}" width="1200" height="400"></canvas>
  <div class="ctl" style="margin-top:8px"><button class="btn" onclick="padClear('${k}')">Clear</button><label class="btn">Upload image<input type="file" accept="image/*" hidden onchange="padUpload('${k}',this)"></label><span class="sp"></span><button class="btn pri" onclick="padSave('${k}')">Save signature</button></div></div>`}).join('')}</div>
  <div class="card" style="margin-top:14px"><h3>How it appears on every report</h3>${sigBlock()}</div>`}
 function initPad(k){const c=document.getElementById('pad_'+k);if(!c)return;const ctx=c.getContext('2d');c.dataset.empty='1';
  const img=S.settings['sig_'+k];if(img){const im=new Image();im.onload=()=>{ctx.drawImage(im,0,0,c.width,c.height);c.dataset.empty='0'};im.src=img}
  let dr=false,last=null;const pos=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]};
- c.onpointerdown=e=>{dr=true;last=pos(e);try{c.setPointerCapture(e.pointerId)}catch(_){}c.dataset.empty='0';ctx.beginPath();ctx.arc(last[0],last[1],1.4,0,7);ctx.fillStyle='#0b1f6b';ctx.fill()};
- c.onpointermove=e=>{if(!dr)return;const p=pos(e);ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0b1f6b';ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p};
+ c.onpointerdown=e=>{dr=true;last=pos(e);try{c.setPointerCapture(e.pointerId)}catch(_){}c.dataset.empty='0';ctx.beginPath();ctx.arc(last[0],last[1],2.6,0,7);ctx.fillStyle='#0b1f6b';ctx.fill()};
+ c.onpointermove=e=>{if(!dr)return;const p=pos(e);ctx.lineWidth=5.5;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0b1f6b';ctx.beginPath();ctx.moveTo(last[0],last[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();last=p};
  c.onpointerup=c.onpointercancel=c.onpointerleave=()=>{dr=false}}
 function padClear(k){const c=document.getElementById('pad_'+k);c.getContext('2d').clearRect(0,0,c.width,c.height);c.dataset.empty='1'}
 function padUpload(k,inp){const f=inp.files[0];inp.value='';if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.getElementById('pad_'+k),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);const sc=Math.min(c.width/im.width,c.height/im.height);const w=im.width*sc,h=im.height*sc;ctx.drawImage(im,(c.width-w)/2,(c.height-h)/2,w,h);c.dataset.empty='0'};im.src=r.result};r.readAsDataURL(f)}
@@ -1000,8 +1071,7 @@ function examStats(e,f='all',cidF){const o={T:0,ap:0,H:0,P:0,F:0,AB:0,NE:0,sum:0
   o.ap++;o.sum+=+v;if(o.max===null||+v>o.max)o.max=+v;if(st==='H'){o.H++;o.P++}else if(st==='P')o.P++;else o.F++;o.rows.push({s,d,c,v:+v,st})})})});
  o.avg=o.ap?Math.round(o.sum/o.ap*10)/10:0;o.pp=pct(o.P,o.ap);return o}
 function rankRows(rows){const r=rows.filter(x=>x.st!=='AB').sort((a,b)=>b.v-a.v||a.s.name.localeCompare(b.s.name));let rank=0,prev=null;r.forEach((x,i)=>{if(x.v!==prev){rank=i+1;prev=x.v}x.rank=rank});return r}
-function repBox(title,period,body){return `<div class="card" id="rep"><div class="rh"><h2>${esc(S.settings.org)}</h2><div>${esc(S.settings.sub)}${S.settings.place?' · '+esc(S.settings.place):''}</div><div style="margin-top:6px;font-weight:700;font-size:14px">${title}</div><div>${period}</div></div>
- <h3 class="noprint">${title} <small>${period}</small></h3>${body}${sigBlock()}<div class="muted" style="font-size:11px;margin-top:10px">Generated ${new Date().toLocaleString('en-IN')} · ${esc(S.settings.org)} Sunday School</div></div>`}
+function repBox(title,period,body,opt){return paper(Object.assign({tag:title,info:[['Details',period]],body},opt||{}))}
 const pxBtns=fn=>`<span class="sp"></span><button class="btn" onclick="doPrint()">${svg('print',16)} Print</button><button class="btn pri" onclick="exportXLSX('${fn}')">${svg('dl',16)} Excel</button>`;
 const examLine=e=>`${esc(e.name)} · Full marks ${e.fm} · Pass ${e.pm} · Honours ${e.hm}`;
 
@@ -1015,10 +1085,10 @@ function vResults(){
 function xPick(){let d=deptOf(U.xDept)||S.depts[0];U.xDept=d.id;if(!d.secs.find(c=>c.id===U.xSec))U.xSec=d.secs[0]?.id;return d}
 function xEntry(e){const d=xPick(),cid=U.xSec;
  let h=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.xDept='${x.id}';U.xSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}</div>
- <div class="chips">${d.secs.map(c=>{const n=studentsOf(c.id).length,m=studentsOf(c.id).filter(s=>markOf(e.id,c.id,s.id)!==undefined).length;return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('xSec','${c.id}')">Section ${esc(c.name)} <span style="font-weight:500;opacity:.75">${m}/${n}</span>${n&&m===n?'<span class="ck">✓</span>':''}</button>`}).join('')}</div></div>`;
+ <div class="chips">${d.secs.map(c=>{const n=studentsOf(c.id).length,m=studentsOf(c.id).filter(s=>markOf(e.id,c.id,s.id)!==undefined).length;return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('xSec','${c.id}')">${secNm(c.name)} <span style="font-weight:500;opacity:.75">${m}/${n}</span>${n&&m===n?'<span class="ck">✓</span>':''}</button>`}).join('')}</div></div>`;
  if(!cid)return h;const st=studentsOf(cid);
  if(!st.length)return h+`<div style="margin-top:14px">${emptyBox('No students in this section','Add students first on the Students page.')}</div>`;
- h+=`<div class="card" style="margin-top:14px;position:sticky;top:0;z-index:5"><div class="rsum" id="xsum"></div><p class="muted" style="margin:8px 0 0;font-size:12px">Type marks (0–${e.fm}) and press <b>Enter</b> for the next student · tap <b>AB</b> for absent · saves automatically.</p></div>
+ h+=`<div class="card" style="margin-top:14px;position:sticky;top:0;z-index:5"><div class="muted" style="font-size:12.5px;margin-bottom:8px">${svg('teach',14)} Class teacher: <b style="color:var(--ink)">${esc(secTeachers(cid)||'not assigned')}</b></div><div class="rsum" id="xsum"></div><p class="muted" style="margin:8px 0 0;font-size:12px">Type marks (0–${e.fm}) and press <b>Enter</b> for the next student · tap <b>AB</b> for absent · saves automatically.</p></div>
  <div class="card" style="margin-top:10px;padding:6px 10px">${st.map(s=>{const v=markOf(e.id,cid,s.id),t=resStatus(v,e);return `<div class="srow r${t}" data-x="${s.id}"><div class="roll">${s.roll}</div><div class="nm"><b>${esc(s.name)}</b><small>${s.g==='F'?'Girl':s.g==='M'?'Boy':''}</small></div><span class="xb">${badge(t)}</span><input class="mk" type="text" inputmode="decimal" autocomplete="off" value="${v??''}" placeholder="—" onchange="setMark('${cid}','${s.id}',this)" onkeydown="mkKey(event,this)"><button class="xab ${t==='AB'?'on':''}" onclick="toggleAB('${cid}','${s.id}')">AB</button></div>`}).join('')}</div>`;
  setTimeout(updXSum,0);return h}
 function mkKey(ev,inp){if(ev.key==='Enter'){ev.preventDefault();inp.blur();const all=[...document.querySelectorAll('.mk')];const n=all[all.indexOf(inp)+1];if(n){n.focus();n.select()}}}
@@ -1040,14 +1110,17 @@ function xSummary(e){const f=U.xF||'all',s=examStats(e,f);
  b+=row('GRAND TOTAL','',s,'tot')+'</table></div><p class="muted" style="font-size:11.5px">Pass % = students with '+e.pm+'+ marks (Honours included) out of students who appeared.</p>';
  return h+repBox('Result Summary',`${examLine(e)} · ${f==='all'?'All departments':esc(deptOf(f)?.name||'')}`,b)}
 
-function xSheet(e){const d=xPick(),cid=U.xSec;
- let h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="U.xDept=this.value;U.xSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('xSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>Section ${esc(c.name)}</option>`).join('')}</select>${pxBtns('Result_Sheet')}</div></div>`;
- if(!cid)return h;const x=examStats(e,'all',cid),rmap={};rankRows(x.rows).forEach(r=>rmap[r.s.id]=r.rank);
- const teachers=S.teachers.filter(t=>t.sec===cid).map(t=>t.name).join(', ');
- const b=`<div class="tbl"><table data-title="Result sheet"><tr><th class="n">Roll</th><th>Student Name</th><th class="n">Marks (out of ${e.fm})</th><th>Result</th><th class="n">Rank</th></tr>${studentsOf(cid).map(s=>{const v=markOf(e.id,cid,s.id),t=resStatus(v,e);return `<tr><td class="n">${s.roll}</td><td><b>${esc(s.name)}</b></td><td class="n"><b>${v===undefined?'—':v}</b></td><td>${badge(t)}</td><td class="n">${rmap[s.id]||'—'}</td></tr>`}).join('')||'<tr><td colspan="5" class="muted">No students</td></tr>'}</table></div>
- <div class="tbl" style="margin-top:12px"><table data-title="Section summary"><tr><th class="n">Students</th><th class="n">Appeared</th><th class="n">Honours</th><th class="n">Pass</th><th class="n">Fail</th><th class="n">Absent</th><th class="n">Pass %</th><th class="n">Average</th><th class="n">Highest</th></tr><tr><td class="n">${x.T}</td><td class="n">${x.ap}</td><td class="n">${x.H}</td><td class="n">${x.P-x.H}</td><td class="n">${x.F}</td><td class="n">${x.AB}</td><td class="n">${x.ap?x.pp+'%':'—'}</td><td class="n">${x.ap?x.avg:'—'}</td><td class="n">${x.max??'—'}</td></tr></table></div>`;
- return h+repBox('Result Sheet',`${esc(secLabel(cid))} · ${examLine(e)}${teachers?' · Teacher: '+esc(teachers):''}`,b)}
-
+function xSheet(e){const d=xPick(),cid=U.xSec,ar=U.xAtt||'session';
+ let h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="U.xDept=this.value;U.xSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('xSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${secNm(c.name)}</option>`).join('')}</select><label class="muted" style="font-size:12.5px">Attendance:</label><select onchange="setU('xAtt',this.value)">${monthOpts(ar,true)}</select>${pxBtns('Result_Sheet')}</div></div>`;
+ if(!cid)return h;
+ const x=examStats(e,'all',cid),rmap={};rankRows(x.rows).forEach(r=>rmap[r.s.id]=r.rank);
+ const dates=rangeDates(ar).filter(dt=>secStat(dt,cid).taken),teacher=secTeachers(cid);let aSum=0,aN=0;
+ const rows=studentsOf(cid).map(s=>{const v=markOf(e.id,cid,s.id),t=resStatus(v,e),a=stuRange(s,dates),ap=a.M?pct(a.P,a.M):null;if(ap!==null){aSum+=ap;aN++}const rk=rmap[s.id];
+  return `<tr><td class="c"><b>${s.roll}</b></td><td><b>${esc(s.name)}</b>${s.guardian?` <span style="font-size:10.5px;color:#64748b;font-weight:500">· ${esc(s.guardian)}</span>`:''}</td><td class="c">${a.M?`${a.P} / ${a.M}`:'—'}</td><td>${ap===null?'—':`<div class="attb">${miniBar(ap)}<b class="${pctCls(ap)}">${ap}%</b></div>`}</td><td class="c mkc">${v===undefined?'—':v}</td><td>${badge(t)}</td><td class="c"><b>${rk?(rk<=3?['🥇','🥈','🥉'][rk-1]+' ':'')+rk:'—'}</b></td></tr>`}).join('');
+ const body=`<div class="tbl"><table data-title="Result sheet"><tr><th class="c">Roll</th><th>Student Name</th><th class="c">Sundays Present</th><th>Attendance</th><th class="c">Marks / ${e.fm}</th><th>Result</th><th class="c">Rank</th></tr>${rows||'<tr><td colspan="7" class="muted">No students in this section</td></tr>'}</table></div>`;
+ return h+paper({tag:'Result Sheet',sub:esc(e.name),teacher:teacher||'',body,
+  info:[['Department',esc(d.name)],['Section',esc(secInfo(cid).c.name)],['Class Teacher',esc(teacher||'—')],['Examination',esc(e.name)],['Marks',`Full ${e.fm} · Pass ${e.pm} · Honours ${e.hm}+`],['Attendance period',`${rangeLabel(ar)} · ${dates.length} Sundays`]],
+  tiles:[['Students',x.T,'#312e81','#eef2ff'],['Appeared',x.ap,'#0e7490','#cffafe'],['Honours',x.H,'#6d28d9','#ede9fe'],['Pass',x.P-x.H,'#15803d','#dcfce7'],['Fail',x.F,'#b91c1c','#fee2e2'],['Absent',x.AB,'#475569','#e2e8f0'],['Pass %',x.ap?x.pp+'%':'—','#b45309','#fef3c7'],['Average',x.ap?x.avg:'—','#0f172a','#f1f5f9'],['Highest',x.max??'—','#0f172a','#f1f5f9'],['Avg attendance',aN?Math.round(aSum/aN*10)/10+'%':'—','#0e7490','#ecfeff']]})}
 function xMerit(e){const f=U.xF||'all',n=U.xTop||10;const rk=rankRows(examStats(e,f).rows),list=n==='all'?rk:rk.filter(x=>x.rank<=n);
  const h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="setU('xF',this.value)">${deptOpts(f,true)}</select><select onchange="setU('xTop',this.value==='all'?'all':+this.value)">${[3,5,10,20,50,'all'].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v==='all'?'All students':'Top '+v}</option>`).join('')}</select>${pxBtns('Merit_List')}</div></div>`;
  const med=r=>r===1?'🥇 1':r===2?'🥈 2':r===3?'🥉 3':r;
