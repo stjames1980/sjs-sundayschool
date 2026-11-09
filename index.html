@@ -171,6 +171,13 @@ tr.dh td{background:#fbfbfe;font-weight:700}
 .cdot.on{box-shadow:0 0 0 3px #0f172a}
 .secrow{display:flex;gap:8px;align-items:center;margin-bottom:6px}.secrow input{flex:1}
 ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
+.rbadge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11.5px;font-weight:750;white-space:nowrap}
+.mk{width:70px;text-align:center;font-weight:800;font-size:16px;padding:7px 6px!important;flex:none}
+.xab{width:40px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-weight:800;color:#94a3b8;cursor:pointer;font-size:12px;flex:none}
+.xab.on{background:#475569;border-color:#475569;color:#fff}
+.rsum .hn{background:#ede9fe}.rsum .hn b{color:#6d28d9}
+.srow.rH .roll{background:#ede9fe;color:#6d28d9}.srow.rP .roll{background:var(--okb);color:#15803d}.srow.rF .roll{background:var(--badb);color:#b91c1c}.srow.rAB .roll{background:#e2e8f0;color:#475569}
+@media (max-width:860px){.xb{display:none}.bnav a{font-size:9.5px}.bnav a.on svg{width:30px}}
 </style>
 </head>
 <body>
@@ -179,7 +186,7 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
   <div class="brand"><div class="logo" id="logoIc"></div><div><b id="brandOrg">St. James H.S. School</b><small>Sunday School Attendance</small></div></div>
   <nav class="nav" id="nav"></nav>
   <a class="instb" id="instBtn" onclick="installApp()">⬇ Install App</a>
-  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v2.0 · works offline</div></div>
+  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.0 · works offline</div></div>
  </aside>
  <main class="main" id="main"></main>
 </div>
@@ -302,10 +309,11 @@ const IC={
  plus:'<path d="M12 5v14M5 12h14"/>',
  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
  trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+ award:'<circle cx="12" cy="8" r="6"/><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"/>',
  up:'<path d="M18 15l-6-6-6 6"/>',down:'<path d="M6 9l6 6 6-6"/>'
 };
 const svg=(k,s=19)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[k]||k}</svg>`;
-const VIEWS=[['dashboard','Dashboard','dash'],['rollcall','Roll Call','roll'],['teachers','Teachers','teach'],['students','Students','stud'],['reports','Reports','rep'],['setup','Setup','set']];
+const VIEWS=[['dashboard','Dashboard','dash'],['rollcall','Roll Call','roll'],['teachers','Teachers','teach'],['students','Students','stud'],['reports','Reports','rep'],['results','Results','award'],['setup','Setup','set']];
 
 /* ============ Storage (IndexedDB + localStorage mirror) ============ */
 const KEY='sjs_sunday_school_v1';
@@ -334,7 +342,7 @@ const now=()=>Date.now();function stamp(k){(S.ts=S.ts||{})[k]=now()}
 function defSettings(){return{org:'St. James H.S. School',sub:'Sunday School',place:'Gongrai, Sepahijala, Tripura',session:'2026-2027',start:'2026-03-01',end:'2027-04-30',cur:'₹',low:75,cap:60,supt:'',secy:''}}
 function defState(){
  S={v:1,seq:1,settings:defSettings(),
-  depts:[],students:[],teachers:[],att:{},tatt:{},off:{},hol:{},ts:{},del:{},base:0,su:0,pristine:true,lastBackup:null};
+  depts:[],students:[],teachers:[],att:{},tatt:{},off:{},hol:{},ts:{},del:{},base:0,su:0,res:{},exams:[],pristine:true,lastBackup:null};
  DEFAULT_DEPTS.forEach((n,i)=>S.depts.push({id:newId('d'),name:n,color:COLORS[i%COLORS.length],u:0,o:i,secs:'ABCDE'.split('').map(x=>({id:newId('c'),name:x}))}));
  return S;
 }
@@ -407,16 +415,16 @@ const miniBar=(p,c)=>`<div class="mini"><i style="width:${Math.min(p,100)}%;back
 const pctCls=p=>p>=S.settings.low?'ok':p>=50?'lvc':'bad';
 
 /* ============ Router ============ */
-function navHTML(){return VIEWS.map(([k,l,i])=>`<a class="${U.view===k?'on':''}" onclick="go('${k}')">${svg(i)}<span>${l}</span></a>`).join('')}
+function navHTML(m){return VIEWS.map(([k,l,i])=>`<a class="${U.view===k?'on':''}" onclick="go('${k}')">${svg(i)}<span>${m&&k==='dashboard'?'Home':m&&k==='rollcall'?'Roll Call':l}</span></a>`).join('')}
 function render(){
  const h=(location.hash||'').replace('#','');if(VIEWS.some(v=>v[0]===h))U.view=h;
- $('#nav').innerHTML=navHTML();$('#bnav').innerHTML=navHTML();
+ $('#nav').innerHTML=navHTML();$('#bnav').innerHTML=navHTML(1);
  $('#brandOrg').textContent=S.settings.org;
  const su=sundays();if(!U.date||!su.includes(U.date))U.date=defaultSunday();
- const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,setup:vSetup}[U.view];
+ const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,results:vResults,setup:vSetup}[U.view];
  $('#main').innerHTML=fn();window.scrollTo&&window.scrollTo(0,0);
 }
-function rerender(){const y=window.scrollY;const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,setup:vSetup}[U.view];$('#main').innerHTML=fn();window.scrollTo(0,y)}
+function rerender(){const y=window.scrollY;const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,results:vResults,setup:vSetup}[U.view];$('#main').innerHTML=fn();window.scrollTo(0,y)}
 function topbar(t,sub,ctl){return `<div class="top"><div><h1>${t}</h1><div class="sub">${sub||esc(S.settings.org)+' · '+esc(S.settings.sub)+' · Session '+esc(S.settings.session)}</div></div><div class="sp"></div>${syncPillHTML()}${ctl||''}</div>`}
 const setU=(k,v)=>{U[k]=v;rerender()};
 
@@ -689,7 +697,7 @@ function saveSettings(){const g=id=>document.getElementById(id).value.trim();con
  Object.assign(S.settings,{org:g('st_org')||'Sunday School',sub:g('st_sub'),place:g('st_place'),session:g('st_session'),cur:g('st_cur')||'₹',start:st,end:en,cap:Math.max(1,parseInt(g('st_cap'))||60),low:Math.min(100,Math.max(1,parseInt(g('st_low'))||75)),supt:g('st_supt'),secy:g('st_secy')});S.su=now();U.date=null;save();render();toast('Settings saved')}
 function backup(){S.lastBackup=Date.now();save();download(`SJS_SundaySchool_Backup_${iso(new Date())}.json`,JSON.stringify(S),'application/json')}
 function restore(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.depts)||!Array.isArray(d.students))throw 0;if(!await ask(`Replace all current data with this backup?<br><small class="muted">${d.depts.length} departments · ${d.students.length} students · ${(d.teachers||[]).length} teachers</small>`,'Restore'))return;S=normalize(d);S.base=now();U.date=null;save();render();toast('Backup restored')}catch(e){toast('This is not a valid backup file')}};r.readAsText(f);inp.value=''}
-function defStateEmpty(){return{v:1,seq:1,settings:{},depts:[],students:[],teachers:[],att:{},tatt:{},off:{},hol:{},ts:{},del:{},base:0}}
+function defStateEmpty(){return{v:1,seq:1,settings:{},depts:[],students:[],teachers:[],att:{},tatt:{},off:{},hol:{},ts:{},del:{},base:0,res:{},exams:[]}}
 async function resetAll(){if(!await ask('Erase <b>all</b> departments, students, teachers and attendance on this device? This cannot be undone unless you have a backup.'+(cfg.url?' <br><br>Cloud sync is on: this device will download the cloud data again on the next sync.':''),'Erase everything',true))return;defState();saveRaw();cfg.rev=undefined;cfg.dirty=false;saveCfg();render();toast('All data erased. Default departments created.')}
 async function loadSample(){if((S.students.length||S.teachers.length)&&!await ask('Loading sample data will <b>replace</b> your current data'+(cfg.url?' <b>and the cloud data</b>':'')+'. Continue?','Load sample',true))return;
  defState();S.base=now();const B=['Lalramenga','Joseph','Daniel','Samuel','David','John','Peter','Isaac','Lalthanzuala','Zorinsanga','Biaksiama','Vanlalruata','Lalrinfela','Malsawma','Lalnunsanga','Remruata','Michael','Stephen','Thangliana','Benjamin'],G=['Mary','Esther','Ruth','Grace','Lalremruati','Zothanpuii','Lalhmingliani','Rebecca','Hannah','Sarah','Lalrinpuii','Mercy','Faith','Joyce','Lydia','Martha','Naomi','Zonunmawii','Rosy','Vanlalhriati'],P=['Lalthanga','Ramdinsanga','Zoramthanga','Lalbiakzuala','Hmingthanmawia','Lalchhuanawma','Rokunga','Thangzuala'];
@@ -705,7 +713,7 @@ async function loadSample(){if((S.students.length||S.teachers.length)&&!await as
 /* ============ v2: helpers ============ */
 const maxO=()=>S.depts.reduce((m,x)=>Math.max(m,x.o??0),-1);
 function normalize(d){const s=Object.assign(defStateEmpty(),d);s.settings=Object.assign(defSettings(),d.settings||{});if(s.settings.end==='2027-02-28')s.settings.end='2027-04-30';
- ['att','tatt','off','hol','ts','del'].forEach(k=>s[k]=s[k]||{});s.teachers=s.teachers||[];s.students=s.students||[];s.depts=s.depts||[];
+ ['att','tatt','off','hol','ts','del','res'].forEach(k=>s[k]=s[k]||{});s.exams=s.exams||[];s.teachers=s.teachers||[];s.students=s.students||[];s.depts=s.depts||[];
  s.depts.forEach((x,i)=>{if(x.o==null)x.o=i;x.secs=x.secs||[]});s.depts.sort((a,b)=>(a.o??0)-(b.o??0));s.seq=Math.max(s.seq||1,1000);s.base=s.base||0;return s}
 function saveRaw(){_idx=null;Store.put(S)}
 function downloadBlob(name,blob){try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast('Downloading '+esc(name))}catch(e){toast('Download is blocked here – please use the installed app')}}
@@ -728,6 +736,7 @@ const XL={
   if(sh.freeze)o+=`<sheetViews><sheetView workbookViewId="0"><pane ySplit="${sh.freeze}" topLeftCell="A${sh.freeze+1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>`;
   if(sh.cols&&sh.cols.length)o+='<cols>'+sh.cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w||10}" customWidth="1"/>`).join('')+'</cols>';
   o+='<sheetData>';sh.rows.forEach((r,ri)=>{o+=`<row r="${ri+1}">`;(r||[]).forEach((c,ci)=>{if(c==null||c==='')return;let v=c,s=0;if(typeof c==='object'){v=c.v;s=c.s||0}const ref=this.col(ci)+(ri+1);
+   if(v==null||v===''){if(s)o+=`<c r="${ref}" s="${s}"/>`;return}
    if(typeof v==='number'&&isFinite(v))o+=`<c r="${ref}" s="${s}"><v>${v}</v></c>`;else o+=`<c r="${ref}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${this.x(v??'')}</t></is></c>`});o+='</row>'});
   o+='</sheetData>';
   if(sh.dv&&sh.dv.length)o+=`<dataValidations count="${sh.dv.length}">${sh.dv.map(d=>`<dataValidation type="list" allowBlank="1" showErrorMessage="0" sqref="${d.ref}"><formula1>${this.x(d.f)}</formula1></dataValidation>`).join('')}</dataValidations>`;
@@ -763,7 +772,7 @@ function parseCSV(t){const rows=[];let row=[],f='',q=false;t=t.replace(/^﻿/,''
  for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===d||c==='\t'){row.push(f);f=''}else if(c==='\n'){row.push(f.replace(/\r$/,''));rows.push(row);row=[];f=''}else f+=c}
  if(f||row.length){row.push(f.replace(/\r$/,''));rows.push(row)}return rows}
 function mapCols(h){const m={};const set=(k,i)=>{if(m[k]==null)m[k]=i};h.forEach((c,i)=>{const t=String(c).toLowerCase();
- if(/depart|dept/.test(t))set('dept',i);else if(/^\s*(sec|section|class)/.test(t)||/section/.test(t))set('sec',i);else if(/roll/.test(t))set('roll',i);else if(/guardian|parent|father|mother/.test(t))set('guardian',i);else if(/gender|sex/.test(t))set('g',i);else if(/phone|mobile|contact/.test(t))set('phone',i);else if(/role|designation|post/.test(t))set('role',i);else if(/name/.test(t))set('name',i)});return m}
+ if(/depart|dept/.test(t))set('dept',i);else if(/^\s*(sec|section|class)/.test(t)||/section/.test(t))set('sec',i);else if(/roll/.test(t))set('roll',i);else if(/guardian|parent|father|mother/.test(t))set('guardian',i);else if(/gender|sex/.test(t))set('g',i);else if(/phone|mobile|contact/.test(t))set('phone',i);else if(/role|designation|post/.test(t))set('role',i);else if(/mark|score|obtain/.test(t))set('marks',i);else if(/name/.test(t))set('name',i)});return m}
 
 /* ---- templates ---- */
 const H=v=>({v,s:1}),B=v=>({v,s:4});
@@ -819,13 +828,13 @@ function impTeachers(data,m){const r={add:0,upd:0,skip:0,nd:[],ns:[],errs:[]};
   const o={name,role,phone:g('phone'),dept:d?d.id:'',sec:c?c.id:'',u:now()};
   const ex=S.teachers.find(t=>t.name.trim().toLowerCase()===name.toLowerCase());if(ex){Object.assign(ex,o);r.upd++}else{S.teachers.push(Object.assign({id:newId('t')},o));r.add++}});
  return r}
-function exportXLSX(){const rows=[],wid=[];const W=(i,l)=>{wid[i]=Math.min(Math.max(wid[i]||8,l+2),45)};
+function exportXLSX(fn){const rows=[],wid=[];const W=(i,l)=>{wid[i]=Math.min(Math.max(wid[i]||8,l+2),45)};
  rows.push([{v:S.settings.org,s:3}]);const h=document.querySelector('#rep .rh');if(h)[...h.querySelectorAll('div')].forEach(x=>rows.push([{v:x.innerText.trim(),s:2}]));rows.push([]);
  document.querySelectorAll('#rep table').forEach(t=>{if(t.dataset.title)rows.push([{v:t.dataset.title,s:2}]);
   t.querySelectorAll('tr').forEach(tr=>{const st=tr.querySelector('th')?1:(tr.classList.contains('tot')||tr.classList.contains('sub'))?5:4;const r=[];
    [...tr.children].forEach(td=>{const tx=(st===1?td.textContent:td.innerText).replace(/\s+/g,' ').trim();const span=+td.getAttribute('colspan')||1;const nt=tx.split(S.settings.cur).join('').replace(/,/g,'').trim();const v=st!==1&&/^-?\d+(\.\d+)?$/.test(nt)?+nt:tx;W(r.length,tx.length);r.push({v,s:st});for(let k=1;k<span;k++)r.push({v:'',s:st})});rows.push(r)});rows.push([])});
  rows.push([]);rows.push([{v:'Secretary: '+(S.settings.secy||'____________________'),s:2},'','',{v:'Superintendent: '+(S.settings.supt||'____________________'),s:2}]);
- downloadBlob(`SundaySchool_${U.rTab}_report_${iso(new Date())}.xlsx`,XL.book([{name:'Report',rows,cols:wid.map(w=>w||10)}]))}
+ downloadBlob(`SundaySchool_${fn||U.rTab+'_report'}_${iso(new Date())}.xlsx`,XL.book([{name:'Report',rows,cols:wid.map(w=>w||10)}]))}
 function vExcel(){const up=k=>`<label class="btn pri">${svg('dl',16)} Upload Excel<input type="file" accept=".xlsx,.csv" hidden onchange="importFile(this,'${k}')"></label>`;
  return `<div class="g2"><div class="card"><h3>${svg('stud',18)} Students</h3><p class="muted">1) Download the template · 2) fill it in Excel, one student per row · 3) upload it here. Missing departments/sections are created automatically. Same Department + Section + Roll No updates that student.</p><div class="ctl"><button class="btn" onclick="dlTemplate('students')">Download template</button><button class="btn" onclick="dlTemplate('students',1)">Download current list</button>${up('students')}</div></div>
  <div class="card"><h3>${svg('teach',18)} Teachers</h3><p class="muted">Same steps for teachers: Name, Role, Department, Section, Phone. A teacher with the same name is updated, not added twice.</p><div class="ctl"><button class="btn" onclick="dlTemplate('teachers')">Download template</button><button class="btn" onclick="dlTemplate('teachers',1)">Download current list</button>${up('teachers')}</div></div></div>
@@ -898,9 +907,9 @@ async function api(body){let r;try{r=await fetch(cfg.url,{method:'POST',headers:
  const t=await r.text();try{return JSON.parse(t)}catch(e){throw 'The cloud did not answer correctly – check the Web App URL and that access is "Anyone"'}}
 async function pack(o){const j=JSON.stringify(o);if(typeof CompressionStream==='undefined')return 'J:'+j;const b=new Uint8Array(await new Response(new Blob([j]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());let bin='';for(let i=0;i<b.length;i+=0x8000)bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return 'G:'+btoa(bin)}
 async function unpack(t){if(!t||t==='{}')return null;if(t.startsWith('J:'))return JSON.parse(t.slice(2));if(t.startsWith('G:')){const bin=atob(t.slice(2)),b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return JSON.parse(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text())}return JSON.parse(t)}
-function kget(X,k){const p=k.split('|');if(p[0]==='a')return X.att?.[p[1]]?.[p[2]];if(p[0]==='o')return X.off?.[p[1]]?.[p[2]];if(p[0]==='t')return X.tatt?.[p[1]];if(p[0]==='h')return X.hol?.[p[1]]}
-function kset(X,k,v){const p=k.split('|'),top={a:'att',o:'off',t:'tatt',h:'hol'}[p[0]];if(!top)return;X[top]=X[top]||{};const cp=v===undefined?undefined:JSON.parse(JSON.stringify(v));
- if(p[0]==='a'||p[0]==='o'){if(cp===undefined){if(X[top][p[1]]){delete X[top][p[1]][p[2]];if(!Object.keys(X[top][p[1]]).length)delete X[top][p[1]]}}else(X[top][p[1]]=X[top][p[1]]||{})[p[2]]=cp}
+function kget(X,k){const p=k.split('|');if(p[0]==='a')return X.att?.[p[1]]?.[p[2]];if(p[0]==='o')return X.off?.[p[1]]?.[p[2]];if(p[0]==='t')return X.tatt?.[p[1]];if(p[0]==='h')return X.hol?.[p[1]];if(p[0]==='r')return X.res?.[p[1]]?.[p[2]]}
+function kset(X,k,v){const p=k.split('|'),top={a:'att',o:'off',t:'tatt',h:'hol',r:'res'}[p[0]];if(!top)return;X[top]=X[top]||{};const cp=v===undefined?undefined:JSON.parse(JSON.stringify(v));
+ if(p[0]==='a'||p[0]==='o'||p[0]==='r'){if(cp===undefined){if(X[top][p[1]]){delete X[top][p[1]][p[2]];if(!Object.keys(X[top][p[1]]).length)delete X[top][p[1]]}}else(X[top][p[1]]=X[top][p[1]]||{})[p[2]]=cp}
  else{if(cp===undefined)delete X[top][p[1]];else X[top][p[1]]=cp}}
 function mergeState(R){if(!R||!Array.isArray(R.depts))return false;R=normalize(R);
  if(S.pristine||(R.base||0)>(S.base||0)){S=R;S.pristine=false;return true}
@@ -909,9 +918,9 @@ function mergeState(R){if(!R||!Array.isArray(R.depts))return false;R=normalize(R
  if((R.su||0)>(L.su||0)){L.settings=R.settings;L.su=R.su;ch=true}
  L.del=L.del||{};for(const k in R.del)if((R.del[k]||0)>(L.del[k]||0)){L.del[k]=R.del[k];ch=true}
  const mList=(a,b)=>{const m=new Map();a.forEach(x=>m.set(x.id,x));b.forEach(x=>{const y=m.get(x.id);if(!y||(x.u||0)>(y.u||0)){m.set(x.id,x);ch=true}});const out=[...m.values()].filter(x=>!((L.del[x.id]||0)>=(x.u||0)&&L.del[x.id]));if(out.length!==m.size)ch=true;return out};
- L.students=mList(L.students,R.students);L.teachers=mList(L.teachers,R.teachers);L.depts=mList(L.depts,R.depts).sort((a,b)=>(a.o??0)-(b.o??0));
+ L.students=mList(L.students,R.students);L.teachers=mList(L.teachers,R.teachers);L.depts=mList(L.depts,R.depts).sort((a,b)=>(a.o??0)-(b.o??0));L.exams=mList(L.exams||[],R.exams||[]);
  L.ts=L.ts||{};const RT=R.ts||{};const keys=new Set([...Object.keys(L.ts),...Object.keys(RT)]);
- for(const d in R.att)for(const c in R.att[d])keys.add('a|'+d+'|'+c);for(const d in R.off)for(const c in R.off[d])keys.add('o|'+d+'|'+c);for(const d in R.tatt)keys.add('t|'+d);for(const d in R.hol)keys.add('h|'+d);
+ for(const d in R.att)for(const c in R.att[d])keys.add('a|'+d+'|'+c);for(const d in R.off)for(const c in R.off[d])keys.add('o|'+d+'|'+c);for(const d in R.tatt)keys.add('t|'+d);for(const d in R.hol)keys.add('h|'+d);for(const e in (R.res||{}))for(const c in R.res[e])keys.add('r|'+e+'|'+c);
  for(const k of keys){const lt=L.ts[k]||0,rt=RT[k]||0;if(rt>lt){kset(L,k,kget(R,k));L.ts[k]=rt;ch=true}else if(!lt&&!rt&&kget(L,k)===undefined&&kget(R,k)!==undefined){kset(L,k,kget(R,k));ch=true}}
  return ch}
 function softRerender(){if(document.querySelector('.mwrap'))return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;if(U.view==='setup'&&U.sTab==='sign')return;rerender()}
@@ -974,6 +983,122 @@ function vSync(){const c=cfg;const st=c.url?(c.err?`<span class="pill r">Problem
  <li><b>Deploy → New deployment</b> → ⚙ <b>Web app</b> · Execute as: <b>Me</b> · Who has access: <b>Anyone</b> → Deploy → copy the <b>Web app URL</b>.</li>
  <li>On every phone/laptop: paste the URL and the same sync key here, give the device a name, tap <b>Save & Connect</b>.</li></ol>
  <div class="ctl"><button class="btn pri" onclick="copyGs()">Copy server code (Code.gs)</button><span class="muted" style="font-size:12px">The Google Sheet also shows Students, Teachers and Sunday Summary tabs, updated automatically.</span></div></div>`}
+
+/* ============ v3: RESULTS ============ */
+const RS={H:['Honours','#6d28d9','#ede9fe'],P:['Pass','#15803d','#dcfce7'],F:['Fail','#b91c1c','#fee2e2'],AB:['Absent','#475569','#e2e8f0'],'':['Not entered','#94a3b8','#f1f5f9']};
+const badge=s=>`<span class="rbadge" style="color:${RS[s][1]};background:${RS[s][2]}">${RS[s][0]}</span>`;
+const safeName=s=>String(s).replace(/[^\w\-]+/g,'_').replace(/_+/g,'_');
+function examList(){if(!S.exams)S.exams=[];if(!S.exams.length)S.exams.push({id:'exam_default',name:'Annual Examination '+S.settings.session,fm:100,pm:40,hm:85,u:0});return S.exams}
+function curExam(){const l=examList();return l.find(e=>e.id===U.exam)||l[l.length-1]}
+function resStatus(v,e){if(v==='AB')return 'AB';if(v===undefined||v===null||v==='')return '';v=+v;return v>=e.hm?'H':v>=e.pm?'P':'F'}
+function markOf(eid,cid,sid){return(((S.res||{})[eid]||{})[cid]||{})[sid]}
+function parseMark(t,e){t=String(t).trim().toUpperCase();if(['AB','A','ABS','ABSENT'].includes(t))return 'AB';const n=+t;if(t===''||isNaN(n)||n<0||n>e.fm)return null;return Math.round(n*100)/100}
+function putMark(eid,cid,sid,v){stamp('r|'+eid+'|'+cid);S.res=S.res||{};const E=S.res[eid]=S.res[eid]||{};const m=E[cid]=E[cid]||{};if(v===undefined)delete m[sid];else m[sid]=v;if(!Object.keys(m).length)delete E[cid];if(!Object.keys(E).length)delete S.res[eid]}
+function examStats(e,f='all',cidF){const o={T:0,ap:0,H:0,P:0,F:0,AB:0,NE:0,sum:0,max:null,rows:[]};
+ S.depts.forEach(d=>{if(f!=='all'&&d.id!==f)return;d.secs.forEach(c=>{if(cidF&&c.id!==cidF)return;studentsOf(c.id).forEach(s=>{o.T++;const v=markOf(e.id,c.id,s.id),st=resStatus(v,e);
+  if(st===''){o.NE++;return}if(st==='AB'){o.AB++;o.rows.push({s,d,c,v,st});return}
+  o.ap++;o.sum+=+v;if(o.max===null||+v>o.max)o.max=+v;if(st==='H'){o.H++;o.P++}else if(st==='P')o.P++;else o.F++;o.rows.push({s,d,c,v:+v,st})})})});
+ o.avg=o.ap?Math.round(o.sum/o.ap*10)/10:0;o.pp=pct(o.P,o.ap);return o}
+function rankRows(rows){const r=rows.filter(x=>x.st!=='AB').sort((a,b)=>b.v-a.v||a.s.name.localeCompare(b.s.name));let rank=0,prev=null;r.forEach((x,i)=>{if(x.v!==prev){rank=i+1;prev=x.v}x.rank=rank});return r}
+function repBox(title,period,body){return `<div class="card" id="rep"><div class="rh"><h2>${esc(S.settings.org)}</h2><div>${esc(S.settings.sub)}${S.settings.place?' · '+esc(S.settings.place):''}</div><div style="margin-top:6px;font-weight:700;font-size:14px">${title}</div><div>${period}</div></div>
+ <h3 class="noprint">${title} <small>${period}</small></h3>${body}${sigBlock()}<div class="muted" style="font-size:11px;margin-top:10px">Generated ${new Date().toLocaleString('en-IN')} · ${esc(S.settings.org)} Sunday School</div></div>`}
+const pxBtns=fn=>`<span class="sp"></span><button class="btn" onclick="doPrint()">${svg('print',16)} Print</button><button class="btn pri" onclick="exportXLSX('${fn}')">${svg('dl',16)} Excel</button>`;
+const examLine=e=>`${esc(e.name)} · Full marks ${e.fm} · Pass ${e.pm} · Honours ${e.hm}`;
+
+function vResults(){
+ if(!S.depts.length)return topbar('Results')+emptyBox('No departments yet','Add departments in Setup first.',`<button class="btn pri" onclick="go('setup')">Open Setup</button>`);
+ const e=curExam();U.exam=e.id;if(!U.xTab)U.xTab='entry';
+ const ctl=`<div class="ctl"><select onchange="setU('exam',this.value)">${examList().map(x=>`<option value="${x.id}" ${x.id===e.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button class="btn" onclick="editExam('${e.id}')">${svg('edit',15)} Marks settings</button><button class="btn pri" onclick="editExam()">${svg('plus',15)} New exam</button></div>`;
+ let h=topbar('Results',`Full marks <b>${e.fm}</b> · Pass marks <b>${e.pm}</b> · Honours <b>${e.hm}</b>+`,ctl);
+ h+=`<div class="tabs">${[['entry','Marks Entry'],['summary','Result Summary'],['sheet','Result Sheet'],['merit','Merit List'],['excel','Excel Upload / Export']].map(([k,l])=>`<button class="${U.xTab===k?'on':''}" onclick="setU('xTab','${k}')">${l}</button>`).join('')}</div>`;
+ return h+({entry:xEntry,summary:xSummary,sheet:xSheet,merit:xMerit,excel:xExcel}[U.xTab]||xEntry)(e)}
+function xPick(){let d=deptOf(U.xDept)||S.depts[0];U.xDept=d.id;if(!d.secs.find(c=>c.id===U.xSec))U.xSec=d.secs[0]?.id;return d}
+function xEntry(e){const d=xPick(),cid=U.xSec;
+ let h=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.xDept='${x.id}';U.xSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}</div>
+ <div class="chips">${d.secs.map(c=>{const n=studentsOf(c.id).length,m=studentsOf(c.id).filter(s=>markOf(e.id,c.id,s.id)!==undefined).length;return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('xSec','${c.id}')">Section ${esc(c.name)} <span style="font-weight:500;opacity:.75">${m}/${n}</span>${n&&m===n?'<span class="ck">✓</span>':''}</button>`}).join('')}</div></div>`;
+ if(!cid)return h;const st=studentsOf(cid);
+ if(!st.length)return h+`<div style="margin-top:14px">${emptyBox('No students in this section','Add students first on the Students page.')}</div>`;
+ h+=`<div class="card" style="margin-top:14px;position:sticky;top:0;z-index:5"><div class="rsum" id="xsum"></div><p class="muted" style="margin:8px 0 0;font-size:12px">Type marks (0–${e.fm}) and press <b>Enter</b> for the next student · tap <b>AB</b> for absent · saves automatically.</p></div>
+ <div class="card" style="margin-top:10px;padding:6px 10px">${st.map(s=>{const v=markOf(e.id,cid,s.id),t=resStatus(v,e);return `<div class="srow r${t}" data-x="${s.id}"><div class="roll">${s.roll}</div><div class="nm"><b>${esc(s.name)}</b><small>${s.g==='F'?'Girl':s.g==='M'?'Boy':''}</small></div><span class="xb">${badge(t)}</span><input class="mk" type="text" inputmode="decimal" autocomplete="off" value="${v??''}" placeholder="—" onchange="setMark('${cid}','${s.id}',this)" onkeydown="mkKey(event,this)"><button class="xab ${t==='AB'?'on':''}" onclick="toggleAB('${cid}','${s.id}')">AB</button></div>`}).join('')}</div>`;
+ setTimeout(updXSum,0);return h}
+function mkKey(ev,inp){if(ev.key==='Enter'){ev.preventDefault();inp.blur();const all=[...document.querySelectorAll('.mk')];const n=all[all.indexOf(inp)+1];if(n){n.focus();n.select()}}}
+function setMark(cid,sid,inp){const e=curExam(),prev=markOf(e.id,cid,sid),t=inp.value.trim();const v=t===''?undefined:parseMark(t,e);
+ if(v===null){toast(`Marks must be 0 – ${e.fm}, or AB for absent`);inp.value=prev??'';return}
+ putMark(e.id,cid,sid,v);inp.value=v??'';save();updXRow(cid,sid);updXSum()}
+function toggleAB(cid,sid){const e=curExam();putMark(e.id,cid,sid,markOf(e.id,cid,sid)==='AB'?undefined:'AB');save();const r=document.querySelector(`.srow[data-x="${sid}"]`);if(r)r.querySelector('.mk').value=markOf(e.id,cid,sid)??'';updXRow(cid,sid);updXSum()}
+function updXRow(cid,sid){const e=curExam(),r=document.querySelector(`.srow[data-x="${sid}"]`);if(!r)return;const t=resStatus(markOf(e.id,cid,sid),e);r.className='srow r'+t;r.querySelector('.xb').innerHTML=badge(t);r.querySelector('.xab').classList.toggle('on',t==='AB')}
+function updXSum(){const el=$('#xsum');if(!el)return;const s=examStats(curExam(),'all',U.xSec);el.innerHTML=`<div><b>${s.T-s.NE}/${s.T}</b><span>Entered</span></div><div class="hn"><b>${s.H}</b><span>Honours</span></div><div class="p"><b>${s.P-s.H}</b><span>Pass</span></div><div class="a"><b>${s.F}</b><span>Fail</span></div><div><b>${s.AB}</b><span>Absent</span></div>`}
+
+function xSummary(e){const f=U.xF||'all',s=examStats(e,f);
+ const row=(a,b2,x,cls)=>`<tr class="${cls}"><td>${a}</td><td>${b2}</td><td class="n">${x.T}</td><td class="n">${x.ap}</td><td class="n">${x.H}</td><td class="n">${x.P-x.H}</td><td class="n">${x.F}</td><td class="n">${x.AB}</td><td class="n">${x.NE}</td><td class="n">${x.ap?x.pp+'%':'—'}</td><td class="n">${x.ap?x.avg:'—'}</td><td class="n">${x.max??'—'}</td></tr>`;
+ let h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="setU('xF',this.value)">${deptOpts(f,true)}</select>${pxBtns('Result_Summary')}</div></div>`;
+ h+=`<div class="kpis noprint" style="margin-bottom:14px">${kpi('Students',num(s.T),s.NE?s.NE+' marks not entered':'All marks entered','#4f46e5','#eef2ff','users')}${kpi('Appeared',num(s.ap),'Absent '+s.AB,'#0891b2','#cffafe','check')}${kpi('Honours',num(s.H),`${e.hm}+ marks · ${pct(s.H,s.ap)}%`,'#7c3aed','#ede9fe','award')}${kpi('Passed',num(s.P),`${e.pm}+ marks (incl. Honours)`,'#16a34a','#dcfce7','check')}${kpi('Failed',num(s.F),`below ${e.pm} marks`,'#dc2626','#fee2e2','x')}${kpi('Pass %',s.pp+'%',`Average ${s.avg} · Highest ${s.max??'—'}`,'#d97706','#fef3c7','pct')}</div>`;
+ h+=`<div class="card noprint" style="margin-bottom:14px"><h3>Department-wise results</h3>${S.depts.filter(d=>f==='all'||d.id===f).map(d=>{const x=examStats(e,d.id);return hbar(`<i class="dot" style="color:${d.color}"></i> ${esc(d.name)}`,[{v:x.H,c:'#7c3aed',n:'Honours'},{v:x.P-x.H,c:'#16a34a',n:'Pass'},{v:x.F,c:'#ef4444',n:'Fail'},{v:x.AB,c:'#94a3b8',n:'Absent'},{v:x.NE,c:'#e2e8f0',n:'Not entered'}],`Pass <b class="${pctCls(x.pp)}">${x.ap?x.pp+'%':'—'}</b>`)}).join('')}
+ <div class="leg"><span><i style="background:#7c3aed"></i>Honours</span><span><i style="background:#16a34a"></i>Pass</span><span><i style="background:#ef4444"></i>Fail</span><span><i style="background:#94a3b8"></i>Absent</span><span><i style="background:#e2e8f0"></i>Not entered</span></div></div>`;
+ let b=`<div class="tbl"><table data-title="Result summary"><tr><th>Department</th><th>Section</th><th class="n">Students</th><th class="n">Appeared</th><th class="n">Honours</th><th class="n">Pass</th><th class="n">Fail</th><th class="n">Absent</th><th class="n">Not entered</th><th class="n">Pass %</th><th class="n">Average</th><th class="n">Highest</th></tr>`;
+ S.depts.forEach(d=>{if(f!=='all'&&d.id!==f)return;d.secs.forEach((c,i)=>{b+=row(i?'':'<b>'+esc(d.name)+'</b>',esc(c.name),examStats(e,d.id,c.id),'')});b+=row(esc(d.name)+' total','',examStats(e,d.id),'sub')});
+ b+=row('GRAND TOTAL','',s,'tot')+'</table></div><p class="muted" style="font-size:11.5px">Pass % = students with '+e.pm+'+ marks (Honours included) out of students who appeared.</p>';
+ return h+repBox('Result Summary',`${examLine(e)} · ${f==='all'?'All departments':esc(deptOf(f)?.name||'')}`,b)}
+
+function xSheet(e){const d=xPick(),cid=U.xSec;
+ let h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="U.xDept=this.value;U.xSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('xSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>Section ${esc(c.name)}</option>`).join('')}</select>${pxBtns('Result_Sheet')}</div></div>`;
+ if(!cid)return h;const x=examStats(e,'all',cid),rmap={};rankRows(x.rows).forEach(r=>rmap[r.s.id]=r.rank);
+ const teachers=S.teachers.filter(t=>t.sec===cid).map(t=>t.name).join(', ');
+ const b=`<div class="tbl"><table data-title="Result sheet"><tr><th class="n">Roll</th><th>Student Name</th><th class="n">Marks (out of ${e.fm})</th><th>Result</th><th class="n">Rank</th></tr>${studentsOf(cid).map(s=>{const v=markOf(e.id,cid,s.id),t=resStatus(v,e);return `<tr><td class="n">${s.roll}</td><td><b>${esc(s.name)}</b></td><td class="n"><b>${v===undefined?'—':v}</b></td><td>${badge(t)}</td><td class="n">${rmap[s.id]||'—'}</td></tr>`}).join('')||'<tr><td colspan="5" class="muted">No students</td></tr>'}</table></div>
+ <div class="tbl" style="margin-top:12px"><table data-title="Section summary"><tr><th class="n">Students</th><th class="n">Appeared</th><th class="n">Honours</th><th class="n">Pass</th><th class="n">Fail</th><th class="n">Absent</th><th class="n">Pass %</th><th class="n">Average</th><th class="n">Highest</th></tr><tr><td class="n">${x.T}</td><td class="n">${x.ap}</td><td class="n">${x.H}</td><td class="n">${x.P-x.H}</td><td class="n">${x.F}</td><td class="n">${x.AB}</td><td class="n">${x.ap?x.pp+'%':'—'}</td><td class="n">${x.ap?x.avg:'—'}</td><td class="n">${x.max??'—'}</td></tr></table></div>`;
+ return h+repBox('Result Sheet',`${esc(secLabel(cid))} · ${examLine(e)}${teachers?' · Teacher: '+esc(teachers):''}`,b)}
+
+function xMerit(e){const f=U.xF||'all',n=U.xTop||10;const rk=rankRows(examStats(e,f).rows),list=n==='all'?rk:rk.filter(x=>x.rank<=n);
+ const h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="setU('xF',this.value)">${deptOpts(f,true)}</select><select onchange="setU('xTop',this.value==='all'?'all':+this.value)">${[3,5,10,20,50,'all'].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v==='all'?'All students':'Top '+v}</option>`).join('')}</select>${pxBtns('Merit_List')}</div></div>`;
+ const med=r=>r===1?'🥇 1':r===2?'🥈 2':r===3?'🥉 3':r;
+ const b=`<div class="tbl"><table data-title="Merit list"><tr><th class="c">Rank</th><th>Student Name</th><th>Department</th><th>Section</th><th class="n">Roll</th><th class="n">Marks</th><th>Result</th></tr>${list.map(x=>`<tr><td class="c"><b>${med(x.rank)}</b></td><td><b>${esc(x.s.name)}</b></td><td>${esc(x.d.name)}</td><td>${esc(x.c.name)}</td><td class="n">${x.s.roll}</td><td class="n"><b>${x.v}</b></td><td>${badge(x.st)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No marks entered yet</td></tr>'}</table></div>`;
+ return h+repBox('Merit List',`${examLine(e)} · ${f==='all'?'All departments':esc(deptOf(f)?.name||'')} · ${n==='all'?'All students':'Top '+n}`,b)}
+
+function xExcel(e){const f=U.xEf||'all';
+ return `<div class="g2"><div class="card"><h3>${svg('dl',18)} 1. Download marks template</h3><p class="muted">The template already lists your students (Department, Section, Roll No, Name) for <b>${esc(e.name)}</b>. Only type the marks – or <b>AB</b> for absent.</p><div class="ctl"><select onchange="U.xEf=this.value">${deptOpts(f,true)}</select><button class="btn pri" onclick="dlMarks()">Download template</button></div></div>
+ <div class="card"><h3>${svg('dl',18)} 2. Upload the filled template</h3><p class="muted">Students are matched by Department + Section + Roll No (or name). Empty marks cells are skipped. You will see a preview before anything is saved.</p><label class="btn pri">Upload marks (.xlsx / .csv)<input type="file" accept=".xlsx,.csv" hidden onchange="importMarks(this)"></label></div></div>
+ <div class="card" style="margin-top:14px"><h3>${svg('rep',18)} 3. Export full results to Excel</h3><p class="muted">Every student with marks, result (Honours / Pass / Fail / Absent), section rank and department rank – plus a Summary sheet.</p><button class="btn" onclick="exportResults()">${svg('dl',16)} Export results (.xlsx)</button></div>`}
+function tplMarks(e,f){const rows=[['Department','Section','Roll No','Student Name',`Marks (out of ${e.fm})`].map(H)];
+ S.depts.forEach(d=>{if(f!=='all'&&d.id!==f)return;d.secs.forEach(c=>studentsOf(c.id).forEach(s=>{const v=markOf(e.id,c.id,s.id);rows.push([d.name,c.name,+s.roll||'',s.name,v===undefined?'':v==='AB'?'AB':+v].map(B))}))});
+ const ins=[[{v:S.settings.org+' – Sunday School Results',s:3}],[{v:'Exam: '+e.name,s:2}],[`Full marks: ${e.fm}   ·   Pass marks: ${e.pm}   ·   Honours: ${e.hm} and above`],[''],[`1. Type each student's marks in the "Marks" column (0 to ${e.fm}).`],['2. Type AB for a student who was absent. Leave the cell empty if not known yet.'],['3. Do not change Department, Section, Roll No or Student Name – they are used to find the student.'],['4. Save the file. In the app open Results → Excel Upload / Export → Upload marks.']];
+ return XL.book([{name:'Marks',rows,cols:[18,10,9,32,18],freeze:1},{name:'Instructions',rows:ins,cols:[100]}])}
+function dlMarks(){const e=curExam();downloadBlob(`SJS_SundaySchool_Marks_${safeName(e.name)}.xlsx`,tplMarks(e,U.xEf||'all'))}
+async function importMarks(inp){const f=inp.files&&inp.files[0];inp.value='';if(!f)return;const e=curExam();
+ try{let rows;if(/\.csv$/i.test(f.name)||/text/.test(f.type))rows=parseCSV(await f.text());else{const sh=await readXlsx(f);const pick=sh.find(s=>/mark|result/i.test(s.name))||sh.find(s=>s.rows.some(r=>r.some(c=>/name/i.test(c))))||sh[0];rows=pick?pick.rows:[]}
+  const hi=rows.findIndex(r=>r.some(c=>/name/i.test(String(c))));if(hi<0)throw 'No header row with a "Name" column was found. Please use the marks template.';
+  const m=mapCols(rows[hi]);if(m.marks==null)throw 'The "Marks" column is missing. Please use the marks template.';
+  const data=rows.slice(hi+1).filter(r=>r.some(c=>String(c).trim()));const r={upd:0,blank:0,nf:0,bad:0,errs:[],ch:[]};
+  data.forEach((row,i)=>{const g=k=>m[k]==null?'':String(row[m[k]]??'').trim();const name=g('name'),mv=g('marks');if(mv===''){r.blank++;return}
+   const dn=g('dept'),sn=g('sec').replace(/^(section|sec\.?)\s*/i,'').trim(),roll=parseInt(g('roll'));const cands=[];
+   S.depts.forEach(d=>{if(dn&&d.name.trim().toLowerCase()!==dn.toLowerCase())return;d.secs.forEach(c=>{if(sn&&c.name.trim().toLowerCase()!==sn.toLowerCase())return;studentsOf(c.id).forEach(s=>cands.push({s,c}))})});
+   const nm=x=>x.s.name.trim().toLowerCase()===name.toLowerCase();
+   let hit=!isNaN(roll)?cands.filter(x=>+x.s.roll===roll&&(!name||nm(x))):[];
+   if(!hit.length&&!isNaN(roll)&&dn&&sn)hit=cands.filter(x=>+x.s.roll===roll);
+   if(!hit.length&&name)hit=cands.filter(nm);
+   if(hit.length!==1){r.nf++;r.errs.push(`Row ${i+2}: ${name||'?'} – ${hit.length?'matches more than one student':'student not found'}`);return}
+   const v=parseMark(mv,e);if(v===null){r.bad++;r.errs.push(`Row ${i+2}: "${mv}" is not valid (use 0–${e.fm} or AB)`);return}
+   r.ch.push({cid:hit[0].c.id,sid:hit[0].s.id,v});r.upd++});
+  modal('Upload marks – '+esc(e.name),`<p>File: <b>${esc(f.name)}</b> · ${data.length} rows</p><div class="lst"><div><span>Marks to save</span><b class="ok">${r.upd}</b></div><div><span>Empty marks (skipped)</span><b>${r.blank}</b></div><div><span>Student not found</span><b class="${r.nf?'bad':''}">${r.nf}</b></div><div><span>Invalid marks</span><b class="${r.bad?'bad':''}">${r.bad}</b></div></div>${r.errs.length?`<div class="banner o" style="margin-top:12px;display:block">${r.errs.slice(0,8).map(esc).join('<br>')}${r.errs.length>8?'<br>…':''}</div>`:''}`,
+   [{t:'Cancel'},{t:'Save marks',cls:'pri',fn:()=>{if(!r.ch.length)return;r.ch.forEach(x=>putMark(e.id,x.cid,x.sid,x.v));save();rerender();toast(r.upd+' marks saved')}}])
+ }catch(err){toast(esc(String(err&&err.message||err)))}}
+function exportResults(){const e=curExam(),all=examStats(e),secRank={},deptRank={};
+ S.depts.forEach(d=>{rankRows(examStats(e,d.id).rows).forEach(x=>deptRank[x.s.id]=x.rank);d.secs.forEach(c=>rankRows(examStats(e,d.id,c.id).rows).forEach(x=>secRank[x.s.id]=x.rank))});
+ const rows=[[{v:S.settings.org+' – Sunday School',s:3}],[{v:`${e.name} · Full marks ${e.fm} · Pass ${e.pm} · Honours ${e.hm}+`,s:2}],[],['Department','Section','Roll No','Student Name','Marks','Result','Section Rank','Department Rank'].map(H)];
+ S.depts.forEach(d=>d.secs.forEach(c=>studentsOf(c.id).forEach(s=>{const v=markOf(e.id,c.id,s.id),t=resStatus(v,e);rows.push([d.name,c.name,+s.roll||'',s.name,v===undefined?'':v==='AB'?'AB':+v,RS[t][0],secRank[s.id]||'',deptRank[s.id]||''].map(B))})));
+ const T=(x,n)=>[n,x.T,x.ap,x.H,x.P-x.H,x.F,x.AB,x.NE,x.ap?x.pp:'',x.ap?x.avg:'',x.max??''];
+ const sum=[[{v:'Result Summary – '+e.name,s:3}],[`Full marks ${e.fm} · Pass marks ${e.pm} · Honours ${e.hm} and above`],[],['Department','Students','Appeared','Honours','Pass','Fail','Absent','Not entered','Pass %','Average','Highest'].map(H),...S.depts.map(d=>T(examStats(e,d.id),d.name).map(B)),T(all,'TOTAL').map(v=>({v,s:5}))];
+ downloadBlob(`SJS_SundaySchool_Results_${safeName(e.name)}.xlsx`,XL.book([{name:'Results',rows,cols:[18,10,9,32,10,13,13,16],freeze:4},{name:'Summary',rows:sum,cols:[22,10,10,10,10,10,10,12,10,10,10]}]))}
+function editExam(id){const x=id?examList().find(q=>q.id===id):null;
+ modal(x?'Marks settings':'New exam',`<div class="form"><div class="fld full"><label>Exam name</label><input type="text" name="n" value="${esc(x?x.name:'')}" placeholder="e.g. Annual Examination 2026-27"></div>
+ <div class="fld"><label>Full marks</label><input type="number" name="fm" value="${x?x.fm:100}" min="1"></div><div class="fld"><label>Pass marks</label><input type="number" name="pm" value="${x?x.pm:40}" min="0"></div>
+ <div class="fld"><label>Honours (marks and above)</label><input type="number" name="hm" value="${x?x.hm:85}" min="0"></div>
+ <div class="fld full muted" style="font-size:12px">Result is worked out automatically: <b>Honours</b> = Honours marks or more · <b>Pass</b> = Pass marks or more · <b>Fail</b> = below Pass marks · <b>AB</b> = Absent. Changing these updates every result instantly.</div></div>`,
+ [...(x&&examList().length>1?[{t:'Delete exam',cls:'danger',fn:()=>{delExam(x.id)}}]:[]),{t:'Cancel'},{t:x?'Save':'Create exam',cls:'pri',fn:w=>{const n=val(w,'n'),fm=+val(w,'fm'),pm=+val(w,'pm'),hm=+val(w,'hm');
+  if(!n){toast('Enter the exam name');return false}
+  if(!(fm>0)||!(pm>=0)||!(hm>pm)||hm>fm){toast('Check the marks: Pass marks < Honours ≤ Full marks');return false}
+  if(x)Object.assign(x,{name:n,fm,pm,hm,u:now()});else{const nid=newId('e');S.exams.push({id:nid,name:n,fm,pm,hm,u:now()});U.exam=nid}
+  save();rerender();toast('Exam saved')}}])}
+async function delExam(id){const x=S.exams.find(q=>q.id===id);if(!await ask(`Delete exam <b>${esc(x.name)}</b> and all its marks?`,'Delete exam',true))return;S.exams=S.exams.filter(q=>q.id!==id);(S.del=S.del||{})[id]=now();if(S.res)delete S.res[id];U.exam=null;save();rerender()}
 
 /* ============ Boot ============ */
 function netPill(){const e=$('#netState');if(e)e.innerHTML=navigator.onLine?'<span style="color:#86efac">●</span> Online':'<span style="color:#fcd34d">●</span> Offline mode – data still saves'}
