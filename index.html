@@ -236,6 +236,12 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
  .paper .pp-foot{margin-top:8px}
  .paper tr,.paper .pp-tiles,.paper .sig{page-break-inside:avoid;break-inside:avoid}
 }
+body.locked .side,body.locked .bnav{display:none!important}body.locked .main{margin-left:0;padding:0}
+.loginw{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 20% 10%,#c7d2fe 0,transparent 40%),radial-gradient(circle at 90% 90%,#ddd6fe 0,transparent 40%),#eef2ff}
+.loginc{background:#fff;border-radius:22px;box-shadow:0 20px 60px rgba(49,46,129,.18);padding:28px 24px;width:min(420px,100%);text-align:center}
+.loginc .logo{color:#fff}.loginc select,.loginc input{width:100%;padding:11px;font-size:15px}
+body.teacher [onclick^="editStudent"],body.teacher [onclick^="delStudent"],body.teacher [onclick^="bulkStudents"],body.teacher [onclick^="renumber"],body.teacher [onclick^="exportStudents"],body.teacher [onclick^="dlTemplate"],body.teacher label:has(input[onchange*="importFile"]),body.teacher label:has(input[onchange*="importMarks"]),body.teacher [onclick^="editExam"],body.teacher [onclick^="setHoliday"],body.teacher [onclick^="unHoliday"],body.teacher [onclick^="editDept"],body.teacher [onclick^="dlMarks"],body.teacher [onclick^="exportResults"]{display:none!important}
+.wrapt th,.wrapt td{white-space:normal!important}
 </style>
 </head>
 <body>
@@ -244,7 +250,7 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
   <div class="brand"><div class="logo" id="logoIc"></div><div><b id="brandOrg">St. James H.S. School</b><small>SJS Sunday School App</small></div></div>
   <nav class="nav" id="nav"></nav>
   <a class="instb" id="instBtn" onclick="installApp()">⬇ Install App</a>
-  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.7 · works offline</div></div>
+  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v4.0 · works offline</div></div>
  </aside>
  <main class="main" id="main"></main>
 </div>
@@ -474,17 +480,19 @@ const miniBar=(p,c)=>`<div class="mini"><i style="width:${Math.min(p,100)}%;back
 const pctCls=p=>p>=S.settings.low?'ok':p>=50?'lvc':'bad';
 
 /* ============ Router ============ */
-function navHTML(m){return VIEWS.map(([k,l,i])=>`<a class="${U.view===k?'on':''}" onclick="go('${k}')">${svg(i)}<span>${m&&k==='dashboard'?'Home':m&&k==='rollcall'?'Roll Call':l}</span></a>`).join('')}
+function navHTML(m){return VIEWS.filter(v=>isAdmin()||TEACHER_VIEWS.includes(v[0])).map(([k,l,i])=>`<a class="${U.view===k?'on':''}" onclick="go('${k}')">${svg(i)}<span>${m&&k==='dashboard'?'Home':m&&k==='rollcall'?'Roll Call':!isAdmin()&&k==='setup'?'Account':l}</span></a>`).join('')}
 function render(){
- const h=(location.hash||'').replace('#','');if(VIEWS.some(v=>v[0]===h))U.view=h;
+ checkMe();if(rolesOn()&&!ME){document.body.classList.add('locked');$('#nav').innerHTML='';$('#bnav').innerHTML='';$('#main').innerHTML=loginHTML();return}
+ document.body.classList.remove('locked');
+ const h=(location.hash||'').replace('#','');if(VIEWS.some(v=>v[0]===h))U.view=h;if(!isAdmin()&&!TEACHER_VIEWS.includes(U.view))U.view='dashboard';
  $('#nav').innerHTML=navHTML();$('#bnav').innerHTML=navHTML(1);
  $('#brandOrg').textContent=S.settings.org;
  const su=sundays();if(!U.date||!su.includes(U.date))U.date=defaultSunday();
  const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,results:vResults,setup:vSetup}[U.view];
  $('#main').innerHTML=fn();window.scrollTo&&window.scrollTo(0,0);
 }
-function rerender(){const y=window.scrollY;const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,results:vResults,setup:vSetup}[U.view];$('#main').innerHTML=fn();window.scrollTo(0,y)}
-function topbar(t,sub,ctl){return `<div class="top"><div><h1>${t}</h1><div class="sub">${sub||esc(S.settings.org)+' · '+esc(S.settings.sub)+' · Session '+esc(S.settings.session)}</div></div><div class="sp"></div>${syncPillHTML()}${ctl||''}</div>`}
+function rerender(){if(rolesOn()&&!ME)return render();const y=window.scrollY;const fn={dashboard:vDash,rollcall:vRoll,teachers:vTeach,students:vStud,reports:vRep,results:vResults,setup:vSetup}[U.view];$('#main').innerHTML=fn();window.scrollTo(0,y)}
+function topbar(t,sub,ctl){return `<div class="top"><div><h1>${t}</h1><div class="sub">${sub||esc(S.settings.org)+' · '+esc(S.settings.sub)+' · Session '+esc(S.settings.session)}</div></div><div class="sp"></div>${syncPillHTML()}${userChip()}${ctl||''}</div>`}
 const setU=(k,v)=>{U[k]=v;rerender()};
 
 /* ============ DASHBOARD ============ */
@@ -499,6 +507,7 @@ function vDash(){
  const girls=S.students.filter(s=>{const i=secInfo(s.sec);return i&&(f==='all'||i.d.id===f)&&s.g==='F'}).length;
  const ctl=`<div class="ctl"><select onchange="setU('date',this.value)">${dateOpts(d)}</select><select onchange="setU('dashDept',this.value)">${deptOpts(f,true)}</select></div>`;
  let h=topbar('Dashboard','Sunday '+fmtD(d)+' · '+(f==='all'?'All departments':esc(deptOf(f)?.name)),ctl);
+ if(needsRestore())h+=`<div class="banner i" style="margin-bottom:14px">${svg('dl')}<span><b>New device?</b> Bring back all your data from Cloud Sync or a backup file.</span><span class="sp"></span><button class="btn sm pri" onclick="showRestore()">Restore my data</button></div>`;
  if(S.hol[d])h+=`<div class="banner o" style="margin-bottom:14px">${svg('cal')}<b>No Sunday School on this day</b> — ${esc(S.hol[d])}</div>`;
  else if(!a.secTaken)h+=`<div class="banner i" style="margin-bottom:14px">${svg('roll')}<span>Roll call has not been taken for this Sunday yet.</span><span class="sp"></span><button class="btn sm pri" onclick="go('rollcall')">Take roll call</button></div>`;
  h+=`<div class="kpis">
@@ -541,13 +550,13 @@ function openRoll(did,cid){U.rDeptSel=did;U.rSecSel=cid;go('rollcall')}
 /* ============ ROLL CALL ============ */
 function vRoll(){
  if(!S.depts.length)return topbar('Roll Call')+emptyBox('No departments yet','Add departments in Setup first.',`<button class="btn pri" onclick="go('setup')">Open Setup</button>`);
- let d=deptOf(U.rDeptSel)||S.depts[0];U.rDeptSel=d.id;
- if(!d.secs.find(c=>c.id===U.rSecSel))U.rSecSel=d.secs[0]?.id;
+ const VD=visDepts();if(!VD.length)return topbar('Roll Call')+emptyBox('No class assigned to you','Ask the Admin / Secretary to assign your class in Teachers.');let d=VD.find(x=>x.id===U.rDeptSel)||VD[0];U.rDeptSel=d.id;
+ if(!visSecs(d).find(c=>c.id===U.rSecSel))U.rSecSel=visSecs(d)[0]?.id;
  const cid=U.rSecSel,date=U.date;
  const ctl=`<div class="ctl"><select onchange="setU('date',this.value)">${dateOpts(date)}</select></div>`;
  let h=topbar('Sunday Roll Call',fmtD(date)+' · one roll call per Sunday morning',ctl);
- h+=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.rDeptSel='${x.id}';U.rSecSel=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}<button class="chip" onclick="editDept()">＋ Department</button></div>
- <div class="chips">${d.secs.map(c=>{const s=secStat(date,c.id);return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('rSecSel','${c.id}')">${secNm(c.name)} <span class="muted" style="font-weight:500;${c.id===cid?'color:#c7d2fe':''}">${s.T}</span>${s.taken?'<span class="ck">✓</span>':''}</button>`}).join('')||'<span class="muted">No sections. Add sections in Setup.</span>'}</div></div>`;
+ h+=`<div class="card"><div class="chips" style="margin-bottom:10px">${visDepts().map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.rDeptSel='${x.id}';U.rSecSel=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}${isAdmin()?'':'<!--'}<button class="chip" onclick="editDept()">＋ Department</button>${isAdmin()?'':'-->'}</div>
+ <div class="chips">${visSecs(d).map(c=>{const s=secStat(date,c.id);return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('rSecSel','${c.id}')">${secNm(c.name)} <span class="muted" style="font-weight:500;${c.id===cid?'color:#c7d2fe':''}">${s.T}</span>${s.taken?'<span class="ck">✓</span>':''}</button>`}).join('')||'<span class="muted">No sections. Add sections in Setup.</span>'}</div></div>`;
  if(S.hol[date])return h+`<div class="banner o" style="margin-top:14px">${svg('cal')}<b>No Sunday School this day:</b> ${esc(S.hol[date])}<span class="sp"></span><button class="btn sm" onclick="unHoliday()">Undo – class was held</button></div>`;
  if(!cid)return h;
  const st=studentsOf(cid);
@@ -608,12 +617,12 @@ function bulkTeachers(){modal('Paste teacher list',`<p class="muted">One teacher
 /* ============ STUDENTS ============ */
 function vStud(){
  if(!S.depts.length)return topbar('Students')+emptyBox('No departments yet','Add departments in Setup first.',`<button class="btn pri" onclick="go('setup')">Open Setup</button>`);
- let d=deptOf(U.sDept)||S.depts[0];U.sDept=d.id;if(!d.secs.find(c=>c.id===U.sSec))U.sSec=d.secs[0]?.id;const cid=U.sSec;
+ const VD=visDepts();if(!VD.length)return topbar('Students')+emptyBox('No class assigned to you','Ask the Admin / Secretary to assign your class.');let d=VD.find(x=>x.id===U.sDept)||VD[0];U.sDept=d.id;if(!visSecs(d).find(c=>c.id===U.sSec))U.sSec=visSecs(d)[0]?.id;const cid=U.sSec;
  let h=topbar('Students',num(S.students.length)+' students enrolled · '+S.depts.reduce((s,x)=>s+x.secs.length,0)+' sections',`<input type="search" placeholder="Search all students…" value="${esc(U.search)}" oninput="U.search=this.value;clearTimeout(window._st);window._st=setTimeout(()=>{rerender();const i=document.querySelector('.top input');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},250)">`);
- if(U.search.trim()){const q=U.search.toLowerCase().trim();const r=S.students.filter(s=>s.name.toLowerCase().includes(q)||(s.guardian||'').toLowerCase().includes(q)||(s.phone||'').includes(q)).slice(0,200);
+ if(U.search.trim()){const q=U.search.toLowerCase().trim();const r=S.students.filter(s=>canSec(s.sec)).filter(s=>s.name.toLowerCase().includes(q)||(s.guardian||'').toLowerCase().includes(q)||(s.phone||'').includes(q)).slice(0,200);
   return h+`<div class="card" style="padding:0"><div class="tbl" style="border:0"><table><tr><th>Name</th><th>Class</th><th class="n">Roll</th><th>Guardian</th><th>Phone</th><th class="c">Edit</th></tr>${r.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${esc(secLabel(s.sec))}</td><td class="n">${s.roll}</td><td>${esc(s.guardian||'')}</td><td>${esc(s.phone||'')}</td><td class="c"><button class="btn sm ghost" onclick="editStudent('${s.id}')">${svg('edit',15)}</button></td></tr>`).join('')||'<tr><td colspan="6" class="muted">No match</td></tr>'}</table></div></div>`}
- h+=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.sDept='${x.id}';U.sSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)} <span style="font-weight:500;opacity:.7">${x.secs.reduce((s,c)=>s+studentsOf(c.id).length,0)}</span></button>`).join('')}<button class="chip" onclick="editDept()">＋ Department</button></div>
- <div class="chips">${d.secs.map(c=>`<button class="chip ${c.id===cid?'on':''}" onclick="setU('sSec','${c.id}')">${secNm(c.name)} <span style="font-weight:500;opacity:.7">${studentsOf(c.id).length}</span></button>`).join('')}</div></div>`;
+ h+=`<div class="card"><div class="chips" style="margin-bottom:10px">${visDepts().map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.sDept='${x.id}';U.sSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)} <span style="font-weight:500;opacity:.7">${x.secs.reduce((s,c)=>s+studentsOf(c.id).length,0)}</span></button>`).join('')}${isAdmin()?'':'<!--'}<button class="chip" onclick="editDept()">＋ Department</button>${isAdmin()?'':'-->'}</div>
+ <div class="chips">${visSecs(d).map(c=>`<button class="chip ${c.id===cid?'on':''}" onclick="setU('sSec','${c.id}')">${secNm(c.name)} <span style="font-weight:500;opacity:.7">${studentsOf(c.id).length}</span></button>`).join('')}</div></div>`;
  if(!cid)return h+`<div style="margin-top:14px">${emptyBox('No sections','Add sections to this department in Setup.')}</div>`;
  const st=studentsOf(cid),cap=+S.settings.cap||60,fill=Math.min(st.length/cap*100,100);
  const teachers=S.teachers.filter(t=>t.sec===cid).map(t=>esc(t.name)).join(', ');
@@ -647,7 +656,7 @@ function exportStudents(cid){const rows=[['Roll','Name','Gender','Guardian','Pho
 
 /* ============ REPORTS ============ */
 function vRep(){
- const tabs=[['weekly','Weekly'],['monthly','Monthly'],['annual','Annual'],['register','Attendance Register'],['students','Student %'],['teachers','Teachers'],['offering','Offering']];
+ let tabs=[['weekly','Weekly'],['monthly','Monthly'],['annual','Annual'],['register','Attendance Register'],['students','Student %'],['teachers','Teachers'],['offering','Offering']];if(!isAdmin()){tabs=tabs.filter(t=>t[0]==='register');U.rTab='register'}
  let h=topbar('Reports','Weekly, monthly & annual summaries · print or export to Excel',`<div class="ctl"><button class="btn" onclick="doPrint()">${svg('print',16)} Print</button><button class="btn pri" onclick="exportXLSX()">${svg('dl',16)} Excel</button></div>`);
  h+=`<div class="tabs">${tabs.map(([k,l])=>`<button class="${U.rTab===k?'on':''}" onclick="setU('rTab','${k}')">${l}</button>`).join('')}</div>`;
  if(!U.rMonth)U.rMonth=U.date.slice(0,7);if(!U.rRange)U.rRange=U.rMonth;
@@ -682,8 +691,8 @@ function rAnnual(){const ms=months();let G={P:0,A:0,L:0,off:0,n:0,tp:0};const pt
  const held=heldDates();
  b+=`<h3 style="margin-top:16px">Department-wise (whole session)</h3><div class="tbl"><table data-title="Department-wise ${S.settings.session}"><tr><th>Department</th><th class="n">Sections</th><th class="n">Enrolled</th><th class="n">Total present</th><th class="n">Total absent</th><th class="n">Total leave</th><th class="n">Attendance %</th><th class="n">Offering</th></tr>${S.depts.map(d=>{let T=0,P=0,A=0,L=0,off=0;d.secs.forEach(c=>{T+=studentsOf(c.id).length;const s=secRange(c.id,held);P+=s.P;A+=s.A;L+=s.L;off+=s.off});return `<tr><td><i class="dot" style="color:${d.color}"></i> <b>${esc(d.name)}</b></td><td class="n">${d.secs.length}</td><td class="n">${T}</td><td class="n">${P}</td><td class="n">${A}</td><td class="n">${L}</td><td class="n">${pct(P,P+A+L)}%</td><td class="n">${money(off)}</td></tr>`}).join('')}</table></div>`;
  return[`<span class="muted">Session ${esc(S.settings.session)} · ${fmtD(S.settings.start)} to ${fmtD(S.settings.end)} (change in Setup)</span>`,'Annual Attendance Report','Session '+esc(S.settings.session)+` · ${G.n} Sundays held`,b+combinedBlock(heldDates(),'Session Grand Total – Students, Teachers & Combined').html,{tiles:combinedBlock(heldDates()).tiles}]}
-function rRegister(){let d=deptOf(U.rgDept)||S.depts[0];if(!d)return['','Attendance Register','',emptyBox('No departments','')];U.rgDept=d.id;if(!d.secs.find(c=>c.id===U.rgSec))U.rgSec=d.secs[0]?.id;const cid=U.rgSec;
- const srt=U.rgSort||'att';const ctl=`<select onchange="U.rgDept=this.value;U.rgSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('rgSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${secNm(c.name)}</option>`).join('')}</select>${rangeSel()}<select onchange="setU('rgSort',this.value)"><option value="att" ${srt==='att'?'selected':''}>Sort: Highest attendance first</option><option value="roll" ${srt==='roll'?'selected':''}>Sort: Roll number</option></select>`;
+function rRegister(){let d=visDepts().find(x=>x.id===U.rgDept)||visDepts()[0];if(!d)return['','Attendance Register','',emptyBox('No departments','')];U.rgDept=d.id;if(!visSecs(d).find(c=>c.id===U.rgSec))U.rgSec=visSecs(d)[0]?.id;const cid=U.rgSec;
+ const srt=U.rgSort||'att';const ctl=`<select onchange="U.rgDept=this.value;U.rgSec=null;rerender()">${deptOptsV(d.id)}</select><select onchange="setU('rgSec',this.value)">${visSecs(d).map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${secNm(c.name)}</option>`).join('')}</select>${rangeSel()}<select onchange="setU('rgSort',this.value)"><option value="att" ${srt==='att'?'selected':''}>Sort: Highest attendance first</option><option value="roll" ${srt==='roll'?'selected':''}>Sort: Roll number</option></select>`;
  if(!cid)return[ctl,'Attendance Register','','<div class="muted">No sections</div>'];
  const dates=rangeDates(U.rRange).filter(x=>secStat(x,cid).taken),st=studentsOf(cid),teacher=secTeachers(cid);
  let tP=0,tA=0,tL=0,pcts=[],low=0;
@@ -745,9 +754,9 @@ function exportCSV(){const out=[];out.push('"'+S.settings.org+' – '+S.settings
  download(`SundaySchool_${U.rTab}_report_${iso(new Date())}.csv`,'﻿'+out.join('\r\n'),'text/csv')}
 
 /* ============ SETUP ============ */
-function vSetup(){
+function vSetup(){if(!isAdmin())return vMyAccount();
  let h=topbar('Setup','Departments, session, signatures, Excel, cloud & backup');
- h+=`<div class="tabs">${[['depts','Departments'],['settings','Session'],['sign','Signatures'],['excel','Excel Upload'],['sync','Cloud Sync'],['data','Backup & App']].map(([k,l])=>`<button class="${U.sTab===k?'on':''}" onclick="setU('sTab','${k}')">${l}</button>`).join('')}</div>`;
+ h+=`<div class="tabs">${[['depts','Departments'],['settings','Session'],['sign','Signatures'],['excel','Excel Upload'],['sync','Cloud Sync'],['access','Users & Access'],['data','Backup & App']].map(([k,l])=>`<button class="${U.sTab===k?'on':''}" onclick="setU('sTab','${k}')">${l}</button>`).join('')}</div>`;
  if(U.sTab==='depts'){
   h+=`<div class="ctl" style="margin-bottom:12px"><button class="btn pri" onclick="editDept()">${svg('plus',16)} Add Department</button><span class="muted">${S.depts.length} departments · ${S.depts.reduce((s,d)=>s+d.secs.length,0)} sections</span></div>`;
   h+=S.depts.map((d,i)=>{const n=d.secs.reduce((s,c)=>s+studentsOf(c.id).length,0);return `<div class="dcard card" style="--c:${d.color}"><div class="hd"><b>${esc(d.name)}</b><span class="pill">${d.secs.length} sections</span><span class="pill g">${n} students</span><span class="sp"></span>
@@ -768,10 +777,10 @@ function vSetup(){
   <div class="fld"><label>Superintendent (for report signature)</label><input type="text" id="st_supt" value="${esc(s.supt||'')}"></div>
   <div class="fld"><label>Secretary (for report signature)</label><input type="text" id="st_secy" value="${esc(s.secy||'')}"></div>
   <div class="full ctl"><button class="btn pri" onclick="saveSettings()">Save Settings</button><span class="muted">${sundays().length} Sundays in this session. Roll call is one session every Sunday morning.</span></div></div></div>`;
- } else if(U.sTab==='sign'){h+=vSign()} else if(U.sTab==='excel'){h+=vExcel()} else if(U.sTab==='sync'){h+=vSync()} else {
+ } else if(U.sTab==='sign'){h+=vSign()} else if(U.sTab==='excel'){h+=vExcel()} else if(U.sTab==='sync'){h+=vSync()} else if(U.sTab==='access'){h+=vAccess()} else {
   const bytes=new Blob([JSON.stringify(S)]).size;
   h+=`<div class="g2"><div class="card"><h3>${svg('dl',18)} Backup</h3><p class="muted">All data is stored on <b>this device</b> and works without internet. Download a backup regularly and keep it safe (Google Drive, WhatsApp to yourself, pen drive). Use it to move data to another phone or PC.</p>
-  <p>Last backup: <b>${S.lastBackup?new Date(S.lastBackup).toLocaleString('en-IN'):'never'}</b></p><div class="ctl"><button class="btn pri" onclick="backup()">Download Backup</button><label class="btn">Restore from Backup<input type="file" accept=".json,application/json" style="display:none" onchange="restore(this)"></label></div></div>
+  <p>Last backup: <b>${S.lastBackup?new Date(S.lastBackup).toLocaleString('en-IN'):'never'}</b></p><div class="ctl"><button class="btn pri" onclick="backup()">Download Backup</button><label class="btn">Restore from Backup<input type="file" accept=".json,application/json" style="display:none" onchange="restore(this)"></label><button class="btn" onclick="showRestore()">Restore from Cloud</button></div></div>
   <div class="card"><h3>${svg('dash',18)} Data on this device</h3><div class="lst"><div><span class="muted">Departments / Sections</span><b>${S.depts.length} / ${S.depts.reduce((s,d)=>s+d.secs.length,0)}</b></div><div><span class="muted">Students</span><b>${num(S.students.length)}</b></div><div><span class="muted">Teachers</span><b>${S.teachers.length}</b></div><div><span class="muted">Sundays recorded</span><b>${heldDates().length}</b></div><div><span class="muted">Data size</span><b>${(bytes/1024).toFixed(0)} KB</b></div></div>
   <div class="ctl" style="margin-top:14px"><button class="btn" onclick="loadSample()">Load sample data (demo)</button><button class="btn danger" onclick="resetAll()">Erase everything</button></div></div></div>
   <div class="card" style="margin-top:14px"><h3>Install as an app <span class="sp"></span><button class="btn pri sm" onclick="installApp()">⬇ Install App</button></h3><p class="muted" style="margin:0">Phone (Chrome): open the menu ⋮ → <b>Add to Home screen / Install app</b>. PC (Chrome/Edge): click the install icon in the address bar. After the first open it runs fully offline.</p></div>`;
@@ -1097,15 +1106,15 @@ const examLine=e=>`${esc(e.name)} · Full marks ${e.fm} · Pass ${e.pm} · Honou
 
 function vResults(){
  if(!S.depts.length)return topbar('Results')+emptyBox('No departments yet','Add departments in Setup first.',`<button class="btn pri" onclick="go('setup')">Open Setup</button>`);
- const e=curExam();U.exam=e.id;if(!U.xTab)U.xTab='entry';
+ const e=curExam();U.exam=e.id;if(!U.xTab)U.xTab='entry';if(!isAdmin()&&!['entry','sheet'].includes(U.xTab))U.xTab='entry';
  const ctl=`<div class="ctl"><select onchange="setU('exam',this.value)">${examList().map(x=>`<option value="${x.id}" ${x.id===e.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button class="btn" onclick="editExam('${e.id}')">${svg('edit',15)} Marks settings</button><button class="btn pri" onclick="editExam()">${svg('plus',15)} New exam</button></div>`;
  let h=topbar('Results',`Full marks <b>${e.fm}</b> · Pass marks <b>${e.pm}</b> · Honours <b>${e.hm}</b>+`,ctl);
- h+=`<div class="tabs">${[['entry','Marks Entry'],['summary','Result Summary'],['sheet','Result Sheet'],['merit','Merit List'],['excel','Excel Upload / Export']].map(([k,l])=>`<button class="${U.xTab===k?'on':''}" onclick="setU('xTab','${k}')">${l}</button>`).join('')}</div>`;
+ h+=`<div class="tabs">${[['entry','Marks Entry'],['summary','Result Summary'],['sheet','Result Sheet'],['merit','Merit List'],['excel','Excel Upload / Export']].filter(([k])=>isAdmin()||k==='entry'||k==='sheet').map(([k,l])=>`<button class="${U.xTab===k?'on':''}" onclick="setU('xTab','${k}')">${l}</button>`).join('')}</div>`;
  return h+({entry:xEntry,summary:xSummary,sheet:xSheet,merit:xMerit,excel:xExcel}[U.xTab]||xEntry)(e)}
-function xPick(){let d=deptOf(U.xDept)||S.depts[0];U.xDept=d.id;if(!d.secs.find(c=>c.id===U.xSec))U.xSec=d.secs[0]?.id;return d}
-function xEntry(e){const d=xPick(),cid=U.xSec;
- let h=`<div class="card"><div class="chips" style="margin-bottom:10px">${S.depts.map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.xDept='${x.id}';U.xSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}</div>
- <div class="chips">${d.secs.map(c=>{const n=studentsOf(c.id).length,m=studentsOf(c.id).filter(s=>markOf(e.id,c.id,s.id)!==undefined).length;return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('xSec','${c.id}')">${secNm(c.name)} <span style="font-weight:500;opacity:.75">${m}/${n}</span>${n&&m===n?'<span class="ck">✓</span>':''}</button>`}).join('')}</div></div>`;
+function xPick(){let d=visDepts().find(x=>x.id===U.xDept)||visDepts()[0];if(!d)return null;U.xDept=d.id;if(!visSecs(d).find(c=>c.id===U.xSec))U.xSec=visSecs(d)[0]?.id;return d}
+function xEntry(e){const d=xPick(),cid=U.xSec;if(!d)return emptyBox('No class assigned to you','Ask the Admin / Secretary to assign your class.');
+ let h=`<div class="card"><div class="chips" style="margin-bottom:10px">${visDepts().map(x=>`<button class="chip ${x.id===d.id?'on':''}" onclick="U.xDept='${x.id}';U.xSec=null;rerender()"><i class="dot" style="color:${x.id===d.id?'#fff':x.color}"></i>${esc(x.name)}</button>`).join('')}</div>
+ <div class="chips">${visSecs(d).map(c=>{const n=studentsOf(c.id).length,m=studentsOf(c.id).filter(s=>markOf(e.id,c.id,s.id)!==undefined).length;return `<button class="chip ${c.id===cid?'on':''}" onclick="setU('xSec','${c.id}')">${secNm(c.name)} <span style="font-weight:500;opacity:.75">${m}/${n}</span>${n&&m===n?'<span class="ck">✓</span>':''}</button>`}).join('')}</div></div>`;
  if(!cid)return h;const st=studentsOf(cid);
  if(!st.length)return h+`<div style="margin-top:14px">${emptyBox('No students in this section','Add students first on the Students page.')}</div>`;
  h+=`<div class="card" style="margin-top:14px;position:sticky;top:0;z-index:5"><div class="muted" style="font-size:12.5px;margin-bottom:8px">${svg('teach',14)} Class teacher: <b style="color:var(--ink)">${esc(secTeachers(cid)||'not assigned')}</b></div><div class="rsum" id="xsum"></div><p class="muted" style="margin:8px 0 0;font-size:12px">Type marks (0–${e.fm}) and press <b>Enter</b> for the next student · tap <b>AB</b> for absent · saves automatically.</p></div>
@@ -1130,8 +1139,8 @@ function xSummary(e){const f=U.xF||'all',s=examStats(e,f);
  b+=row('GRAND TOTAL','',s,'tot')+'</table></div><p class="muted" style="font-size:11.5px">Pass % = students with '+e.pm+'+ marks (Honours included) out of students who appeared.</p>';
  return h+repBox('Result Summary',`${examLine(e)} · ${f==='all'?'All departments':esc(deptOf(f)?.name||'')}`,b)}
 
-function xSheet(e){const d=xPick(),cid=U.xSec,ar=U.xAtt||'session';
- let h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="U.xDept=this.value;U.xSec=null;rerender()">${deptOpts(d.id)}</select><select onchange="setU('xSec',this.value)">${d.secs.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${secNm(c.name)}</option>`).join('')}</select><label class="muted" style="font-size:12.5px">Attendance:</label><select onchange="setU('xAtt',this.value)">${monthOpts(ar,true)}</select>${pxBtns('Result_Sheet')}</div></div>`;
+function xSheet(e){const d=xPick(),cid=U.xSec,ar=U.xAtt||'session';if(!d)return emptyBox('No class assigned to you','');
+ let h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="U.xDept=this.value;U.xSec=null;rerender()">${deptOptsV(d.id)}</select><select onchange="setU('xSec',this.value)">${visSecs(d).map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${secNm(c.name)}</option>`).join('')}</select><label class="muted" style="font-size:12.5px">Attendance:</label><select onchange="setU('xAtt',this.value)">${monthOpts(ar,true)}</select>${pxBtns('Result_Sheet')}</div></div>`;
  if(!cid)return h;
  const x=examStats(e,'all',cid),rmap={};rankRows(x.rows).forEach(r=>rmap[r.s.id]=r.rank);
  const dates=rangeDates(ar).filter(dt=>secStat(dt,cid).taken),teacher=secTeachers(cid);let aSum=0,aN=0;
@@ -1198,6 +1207,106 @@ function editExam(id){const x=id?examList().find(q=>q.id===id):null;
   save();rerender();toast('Exam saved')}}])}
 async function delExam(id){const x=S.exams.find(q=>q.id===id);if(!await ask(`Delete exam <b>${esc(x.name)}</b> and all its marks?`,'Delete exam',true))return;S.exams=S.exams.filter(q=>q.id!==id);(S.del=S.del||{})[id]=now();if(S.res)delete S.res[id];U.exam=null;save();rerender()}
 
+
+/* ============ v3.8: restore on new install ============ */
+function showRestore(){if(document.querySelector('.mwrap'))return;
+ const w=modal('Welcome! Restore your data?',`<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px"><div class="logo" style="width:44px;height:44px">${svg('cross',22)}</div><div><b>This device has no Sunday School data yet.</b><div class="muted" style="font-size:12.5px">If you already use the app on another phone/laptop with Cloud Sync, bring all students, teachers, attendance and results here in one step.</div></div></div>
+ <div class="form"><div class="fld full"><label>Web App URL (Apps Script → Deploy → Manage deployments)</label><input type="text" name="url" placeholder="https://script.google.com/macros/s/…/exec"></div>
+ <div class="fld"><label>Sync key</label><input type="text" name="key" autocomplete="off" placeholder="your secret word"></div>
+ <div class="fld"><label>This device name</label><input type="text" name="dev" placeholder="e.g. Secretary phone"></div></div>
+ <div class="muted" style="font-size:12px;margin-top:10px">No cloud? <label style="color:var(--pri);font-weight:700;cursor:pointer;text-decoration:underline">Restore from a backup file<input type="file" accept=".json,application/json" hidden onchange="this.closest('.mwrap').remove();restore(this)"></label></div>`,
+ [{t:'Start fresh',fn:()=>{try{localStorage.setItem(KEY+'_fresh','1')}catch(e){}}},{t:'Restore from cloud',cls:'pri',fn:w=>{restoreFromCloud(val(w,'url'),val(w,'key'),val(w,'dev'),w);return false}}]);
+ return w}
+async function restoreFromCloud(url,key,dev,w){
+ if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){toast('Paste the Web App URL (starts with https://script.google.com/)');return}
+ if(!key){toast('Enter the sync key');return}
+ const btn=w&&w.querySelector('.mf .pri');if(btn){btn.disabled=true;btn.textContent='Restoring…'}
+ const old=cfg;cfg={url,key,device:dev,auto:true,err:''};
+ try{const r=await api({action:'pull',rev:-1});if(!r.ok)throw r.error||'Could not connect';
+  const R=r.data?await unpack(r.data):null;
+  if(R&&Array.isArray(R.depts)){S=normalize(R);S.pristine=false;saveRaw();cfg.rev=r.rev;cfg.dirty=false;cfg.last=Date.now();saveCfg();if(w)w.remove();U.date=null;render();setSync();
+   toast(`Restored ✓ ${R.students.length} students · ${R.teachers.length} teachers`)}
+  else{cfg.dirty=true;saveCfg();if(w)w.remove();render();setSync();toast('Connected – the cloud is empty, this device will upload its data')}}
+ catch(e){cfg=old;saveCfg();if(btn){btn.disabled=false;btn.textContent='Restore from cloud'}toast('Could not restore: '+esc(String(e)))}}
+function needsRestore(){return S.pristine&&!cfg.url&&!S.students.length&&!S.teachers.length}
+
+/* ============ v4: USERS, ROLES & ACCESS CONTROL ============ */
+let ME=null;
+const ROLE_N={admin:'Admin',secy:'Secretary',supt:'Superintendent',teacher:'Teacher'};
+const TEACHER_VIEWS=['dashboard','rollcall','students','results','reports','setup'];
+const rolesOn=()=>!!(S&&S.settings.roles&&S.settings.roles.on);
+function isAdmin(){return !rolesOn()||!!(ME&&ME.role!=='teacher')}
+function myT(){return ME&&ME.role==='teacher'?S.teachers.find(t=>t.id===ME.tid):null}
+function mySecs(){const t=myT();return t&&t.sec?[t.sec]:[]}
+function canSec(cid){return isAdmin()||mySecs().includes(cid)}
+function visDepts(){return isAdmin()?S.depts:S.depts.filter(d=>d.secs.some(c=>mySecs().includes(c.id)))}
+function visSecs(d){return isAdmin()?d.secs:d.secs.filter(c=>mySecs().includes(c.id))}
+function deptOptsV(sel){return visDepts().map(d=>`<option value="${d.id}" ${d.id===sel?'selected':''}>${esc(d.name)}</option>`).join('')}
+function ph(p){let h=2166136261;const s='sjs-ss|'+String(p).trim();for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}let h2=5381;for(let i=0;i<s.length;i++)h2=(Math.imul(h2,33)^s.charCodeAt(i))>>>0;return 'p'+(h>>>0).toString(36)+(h2>>>0).toString(36)}
+function meName(){if(!ME)return '';if(ME.role==='teacher')return(myT()||{}).name||'Teacher';return(ME.role==='secy'?S.settings.secy:ME.role==='supt'?S.settings.supt:'')||ROLE_N[ME.role]}
+function setMe(m){ME=m;Store.put(m,'user');document.body.classList.toggle('teacher',!isAdmin())}
+function checkMe(){if(!rolesOn()){document.body.classList.remove('teacher');return}
+ if(ME&&ME.role==='teacher'){const t=myT();if(!t||!t.pin||t.pin!==ME.ph)setMe(null)}
+ else if(ME){const r=S.settings.roles;if(!r[ME.role]||r[ME.role]!==ME.ph)setMe(null)}
+ document.body.classList.toggle('teacher',!isAdmin())}
+function logout(){setMe(null);U.view='dashboard';try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}render()}
+function userChip(){return rolesOn()&&ME?`<button class="pill noprint" style="border:0;cursor:pointer" onclick="userMenu()">👤 ${esc(meName())} · ${ROLE_N[ME.role]}</button>`:''}
+function userMenu(){const t=myT();modal('Signed in',`<div class="lst"><div><span class="muted">Name</span><b>${esc(meName())}</b></div><div><span class="muted">Role</span><b>${ROLE_N[ME.role]}</b></div>${t?`<div><span class="muted">My class</span><b>${t.sec?esc(secLabel(t.sec)):'Not assigned'}</b></div>`:''}</div>${!isAdmin()?'<p class="muted" style="font-size:12.5px;margin-top:12px">As a teacher you can take Roll Call and enter Marks for your own class, and view your class register and result sheet.</p>':''}`,
+ [...(t?[{t:'Change my PIN',fn:()=>{changeMyPin();}}]:[]),{t:'Close'},{t:'Sign out',cls:'danger',fn:()=>{logout()}}])}
+function changeMyPin(){modal('Change my PIN',`<div class="fld"><label>New PIN (4–6 digits)</label><input type="password" inputmode="numeric" name="p1"></div><div class="fld" style="margin-top:8px"><label>Repeat new PIN</label><input type="password" inputmode="numeric" name="p2"></div>`,[{t:'Cancel'},{t:'Save',cls:'pri',fn:w=>{const a=val(w,'p1'),b=val(w,'p2');if(!/^\d{4,6}$/.test(a)){toast('PIN must be 4–6 digits');return false}if(a!==b){toast('PINs do not match');return false}
+ const t=myT();if(t){t.pin=ph(a);t.u=now();ME.ph=t.pin;Store.put(ME,'user');save();toast('PIN changed')}}}])}
+function loginHTML(){const r=S.settings.roles||{};const ts=S.teachers.filter(t=>t.pin).sort((a,b)=>a.name.localeCompare(b.name));if(!U.lrole)U.lrole='teacher';
+ return `<div class="loginw"><div class="loginc"><div class="logo" style="width:60px;height:60px;margin:0 auto 12px">${svg('cross',30)}</div><h2 style="margin:0">${esc(S.settings.org)}</h2><div class="muted" style="margin:4px 0 18px">SJS Sunday School App · Please sign in</div>
+ <div class="tabs" style="justify-content:center">${['teacher','admin','secy','supt'].filter(k=>k==='teacher'||r[k]).map(k=>`<button class="${U.lrole===k?'on':''}" onclick="U.lrole='${k}';render()">${ROLE_N[k]}</button>`).join('')}</div>
+ ${U.lrole==='teacher'?`<div class="fld" style="text-align:left"><label>Your name</label><select id="lg_t"><option value="">— Select your name —</option>${ts.map(t=>`<option value="${t.id}">${esc(t.name)}${t.sec?' · '+esc(secLabel(t.sec)):''}</option>`).join('')}</select></div>`:`<div class="muted" style="font-size:12.5px">Signing in as <b>${ROLE_N[U.lrole]}</b>${U.lrole==='secy'&&S.settings.secy?' ('+esc(S.settings.secy)+')':U.lrole==='supt'&&S.settings.supt?' ('+esc(S.settings.supt)+')':''}</div>`}
+ <div class="fld" style="text-align:left;margin-top:10px"><label>PIN</label><input type="password" inputmode="numeric" id="lg_p" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"></div>
+ <button class="btn pri" style="width:100%;margin-top:16px;padding:12px;font-size:15px" onclick="doLogin()">Sign in</button>
+ <div class="muted" style="font-size:12px;margin-top:14px">${U.lrole==='teacher'?(ts.length?'No PIN yet? Ask the Admin or Secretary.':'No teacher logins yet – the Admin must create PINs first.'):'<a href="#" onclick="forgotPin();return false">Forgot PIN?</a>'}</div>
+ ${cfg.url?`<div style="font-size:12px;margin-top:8px"><a href="#" onclick="syncNow(true).then(()=>render());return false">⟳ Get latest names & PINs from cloud</a></div>`:''}</div></div>`}
+function doLogin(){const p=(($('#lg_p')||{}).value||'').trim();if(!p){toast('Enter your PIN');return}const h=ph(p);
+ if(U.lrole==='teacher'){const t=S.teachers.find(x=>x.id===(($('#lg_t')||{}).value));if(!t){toast('Select your name');return}if(t.pin!==h){toast('Wrong PIN');return}setMe({role:'teacher',tid:t.id,ph:h})}
+ else{const r=S.settings.roles||{};if(!r[U.lrole]||r[U.lrole]!==h){toast('Wrong PIN');return}setMe({role:U.lrole,ph:h})}
+ toast('Welcome, '+esc(meName()));U.view=isAdmin()?'dashboard':'rollcall';render();if(location.hash!=='#'+U.view)location.hash=U.view}
+function forgotPin(){modal('Forgot PIN',`<p>Type the <b>recovery code</b> (shown when access control was switched on) or the <b>Cloud Sync key</b>. You will be signed in as Admin to set new PINs.</p><input type="text" name="rc" style="width:100%" autocomplete="off">`,
+ [{t:'Cancel'},{t:'Unlock',cls:'pri',fn:w=>{const v=val(w,'rc'),r=S.settings.roles||{};if(v&&((r.rec&&ph(v.toUpperCase())===r.rec)||(cfg.key&&v===cfg.key))){setMe({role:'admin',ph:r.admin||''});U.sTab='access';U.view='setup';render();location.hash='setup';toast('Unlocked – set a new Admin PIN now');return}toast('Not correct');return false}}])}
+function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<8;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+function savePins(){const r=Object.assign({},S.settings.roles||{});let n=0;
+ for(const k of ['admin','secy','supt']){const v=(document.getElementById('pin_'+k)||{}).value||'';if(!v)continue;if(!/^\d{4,6}$/.test(v)){toast(ROLE_N[k]+' PIN must be 4–6 digits');return}r[k]=ph(v);n++;if(ME&&ME.role===k){ME.ph=r[k];Store.put(ME,'user')}}
+ if(!n){toast('Type at least one PIN');return}S.settings.roles=r;S.su=now();save();rerender();toast('PINs saved')}
+async function setAccess(on){const r=Object.assign({},S.settings.roles||{});
+ if(on){if(!r.admin){toast('First set and save the Admin PIN');return}const code=genCode();r.rec=ph(code);r.on=true;S.settings.roles=r;S.su=now();save();setMe({role:'admin',ph:r.admin});rerender();
+  modal('Access control is ON',`<p>From now on everyone must sign in. <b>Write down this recovery code</b> and keep it safe – it unlocks the app if all PINs are forgotten:</p><div style="font-size:28px;font-weight:800;letter-spacing:.2em;text-align:center;background:#eef2ff;border-radius:12px;padding:14px;color:#312e81">${code}</div><p class="muted" style="font-size:12.5px;margin-top:10px">The Cloud Sync key also works as a recovery code. Next: create teacher PINs below and send each teacher their own PIN privately.</p>`,[{t:'I have written it down',cls:'pri'}])}
+ else{if(!await ask('Turn OFF access control? Everyone will have full control again.','Turn off',true))return;r.on=false;S.settings.roles=r;S.su=now();save();checkMe();rerender()}}
+function setTPin(id){const t=S.teachers.find(x=>x.id===id);modal('PIN for '+esc(t.name),`<div class="fld"><label>New PIN (4–6 digits)</label><input type="text" inputmode="numeric" name="p" autocomplete="off"></div><p class="muted" style="font-size:12px;margin-top:8px">Class: ${t.sec?esc(secLabel(t.sec)):'<b class="bad">not assigned – set the class in Teachers first</b>'}</p>`,
+ [{t:'Cancel'},{t:'Save PIN',cls:'pri',fn:w=>{const v=val(w,'p');if(!/^\d{4,6}$/.test(v)){toast('PIN must be 4–6 digits');return false}t.pin=ph(v);t.u=now();save();rerender();toast('PIN saved for '+esc(t.name))}}])}
+async function clearTPin(id){const t=S.teachers.find(x=>x.id===id);if(!await ask(`Remove the login PIN of <b>${esc(t.name)}</b>? They will not be able to sign in.`,'Remove',true))return;delete t.pin;t.u=now();save();rerender()}
+function genPins(){const list=[];S.teachers.forEach(t=>{if(t.pin)return;const p=String(1000+Math.floor(Math.random()*9000));t.pin=ph(p);t.u=now();list.push({t,p})});
+ if(!list.length){toast('All teachers already have a PIN');return}save();rerender();
+ const txt=list.map(x=>`${x.t.name} (${x.t.sec?secLabel(x.t.sec):'no class'}) – PIN ${x.p}`).join('\n');
+ modal(`${list.length} teacher PINs created`,`<p class="muted" style="font-size:12.5px">Write these down or copy them now – PINs are stored secretly and <b>cannot be shown again</b> (you can always set a new one). Send each teacher only their own PIN.</p><div class="tbl" style="max-height:340px"><table><tr><th>Teacher</th><th>Class</th><th class="c">PIN</th></tr>${list.map(x=>`<tr><td><b>${esc(x.t.name)}</b></td><td>${x.t.sec?esc(secLabel(x.t.sec)):'<span class="bad">no class</span>'}</td><td class="c" style="font-size:16px;font-weight:800;letter-spacing:.1em">${x.p}</td></tr>`).join('')}</table></div>`,
+ [{t:'Copy list',fn:()=>{try{navigator.clipboard.writeText(txt).then(()=>toast('Copied'),()=>copyText(txt))}catch(e){copyText(txt)}return false}},{t:'Done',cls:'pri'}])}
+function vAccess(){const r=S.settings.roles||{};const st=k=>r[k]?'<span class="pill g">set</span>':'<span class="pill o">not set</span>';const n=S.teachers.filter(t=>t.pin).length;
+ const yes='<span class="ok" style="font-weight:800">✓</span>',no='<span class="bad" style="font-weight:800">✗</span>',own='<span class="lvc" style="font-weight:700">Own class only</span>';
+ const perms=[['Dashboard (view)',yes,yes],['Roll Call (attendance & offering)','All classes',own],['Marks Entry','All classes',own],['Result Sheet & Attendance Register','All classes',own],['Students list','Add / edit / delete / Excel','View own class'],['Teachers & teacher attendance, teacher offering',yes,no],['Reports, Merit List, Result Summary',yes,no],['No class (OFF Sunday)',yes,no],['Departments, Session, Exams, Signatures, Excel upload',yes,no],['Backup, Restore, Users & Access',yes,no]];
+ return `<div class="g2"><div class="card"><h3>🔐 Access control ${r.on?'<span class="pill g">ON</span>':'<span class="pill">OFF</span>'}</h3><p class="muted" style="margin-top:0">When ON, everyone signs in with a PIN. <b>Admin, Secretary and Superintendent</b> have full control. <b>Teachers</b> can only work on <b>their own class</b>.</p>
+ <div class="form"><div class="fld"><label>Admin PIN ${st('admin')}</label><input type="password" inputmode="numeric" id="pin_admin" placeholder="${r.admin?'leave blank to keep':'4–6 digits'}" autocomplete="new-password"></div>
+ <div class="fld"><label>Secretary PIN ${st('secy')}</label><input type="password" inputmode="numeric" id="pin_secy" placeholder="${r.secy?'leave blank to keep':'4–6 digits'}" autocomplete="new-password"></div>
+ <div class="fld"><label>Superintendent PIN ${st('supt')}</label><input type="password" inputmode="numeric" id="pin_supt" placeholder="${r.supt?'leave blank to keep':'4–6 digits'}" autocomplete="new-password"></div>
+ <div class="fld" style="justify-content:flex-end"><button class="btn" onclick="savePins()">Save PINs</button></div>
+ <div class="full ctl">${r.on?`<button class="btn danger" onclick="setAccess(false)">Turn OFF access control</button><button class="btn" onclick="logout()">Sign out</button>`:`<button class="btn pri" onclick="setAccess(true)">Turn ON access control</button>`}</div></div></div>
+ <div class="card"><h3>Who can do what</h3><div class="tbl wrapt"><table><tr><th>Feature</th><th class="c">Admin · Secretary · Superintendent</th><th class="c">Teacher</th></tr>${perms.map(p=>`<tr><td>${p[0]}</td><td class="c">${p[1]}</td><td class="c">${p[2]}</td></tr>`).join('')}</table></div></div></div>
+ <div class="card" style="margin-top:14px"><h3>Teacher logins <small>${n} of ${S.teachers.length} have a PIN</small></h3><p class="muted" style="margin-top:0;font-size:12.5px">A teacher can control only the class set for them in <b>Teachers → Teacher List</b>. Teachers without a class cannot take roll call.</p>
+ <div class="ctl" style="margin-bottom:10px"><button class="btn pri" onclick="genPins()">Create PINs for teachers without one</button></div>
+ <div class="tbl"><table><tr><th>Teacher</th><th>Role</th><th>Class they control</th><th>Login</th><th class="c">Action</th></tr>${S.teachers.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.role||'')}</td><td>${t.sec?esc(secLabel(t.sec)):'<span class="muted">No class</span>'}</td><td>${t.pin?'<span class="pill g">PIN set</span>':'<span class="pill o">No PIN</span>'}</td><td class="c"><button class="btn sm" onclick="setTPin('${t.id}')">Set PIN</button>${t.pin?` <button class="btn sm ghost" onclick="clearTPin('${t.id}')">Remove</button>`:''}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">Add teachers first</td></tr>'}</table></div></div>`}
+function vMyAccount(){const t=myT();
+ return topbar('My Account','Signed in as '+esc(meName())+' · '+ROLE_N[ME?ME.role:'teacher'])+`<div class="g2"><div class="card"><h3>👤 ${esc(meName())}</h3><div class="lst"><div><span class="muted">Role</span><b>Teacher</b></div><div><span class="muted">My class</span><b>${t&&t.sec?esc(secLabel(t.sec)):'Not assigned'}</b></div></div>
+ <p class="muted" style="font-size:12.5px">You can take <b>Roll Call</b> and enter <b>Marks</b> for your class, and view your class <b>Attendance Register</b> and <b>Result Sheet</b>.</p><div class="ctl"><button class="btn" onclick="changeMyPin()">Change my PIN</button><button class="btn danger" onclick="logout()">Sign out</button><button class="btn pri" onclick="installApp()">⬇ Install App</button></div></div>
+ <div class="card"><h3>☁ Cloud Sync</h3><div class="lst"><div><span class="muted">Status</span><b>${cfg.url?(cfg.err?'Problem':'Connected'):'Not connected'}</b></div><div><span class="muted">Last sync</span><b>${cfg.last?new Date(cfg.last).toLocaleString('en-IN'):'never'}</b></div><div><span class="muted">Waiting to upload</span><b>${cfg.dirty?'Yes':'No'}</b></div></div><div class="ctl" style="margin-top:12px">${cfg.url?'<button class="btn pri" onclick="syncNow(true)">Sync now</button>':'<span class="muted">Ask the Admin for the Web App URL and Sync key.</span>'}</div></div></div>`}
+/* guards: admin-only actions and own-class actions */
+['editDept','delDept','moveDept','addSec','renSec','delSec','saveSettings','padSave','editTeacher','delTeacher','bulkTeachers','tMark','tRest','setTOff','editStudent','delStudent','bulkStudents','renumber','exportStudents','importFile','importMarks','editExam','delExam','setHoliday','unHoliday','resetAll','loadSample','cloudReplaceRemote','dlTemplate','exportResults','dlMarks','savePins','setTPin','clearTPin','genPins','backup','disconnectSync','copyGs'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;window[n]=function(...a){if(!isAdmin()){toast('Only Admin, Secretary or Superintendent can do this');return}return f.apply(this,a)}});
+['mark','markRest','clearSec','setOff','setMark','toggleAB'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;window[n]=function(...a){if(!canSec(a[0])){toast('You can only change your own class');return}return f.apply(this,a)}});
+{const _restore=window.restore;window.restore=function(inp){if(rolesOn()&&!isAdmin()){toast('Only Admin can restore');return}return _restore(inp)}}
+
 /* ============ Boot ============ */
 function netPill(){const e=$('#netState');if(e)e.innerHTML=navigator.onLine?'<span style="color:#86efac">●</span> Online':'<span style="color:#fcd34d">●</span> Offline mode – data still saves'}
 (async function boot(){
@@ -1206,9 +1315,10 @@ function netPill(){const e=$('#netState');if(e)e.innerHTML=navigator.onLine?'<sp
  const d=await Store.get();
  if(d&&Array.isArray(d.depts)){S=normalize(d)}
  else{defState();saveRaw()}
- cfg=(await Store.get('sync'))||{};
+ cfg=(await Store.get('sync'))||{};ME=(await Store.get('user'))||null;
  setSaved(true);netPill();window.addEventListener('online',netPill);window.addEventListener('offline',netPill);
  window.addEventListener('hashchange',render);render();updInstall();setSync();
+ try{if(needsRestore()&&!localStorage.getItem(KEY+'_fresh'))setTimeout(showRestore,700)}catch(e){if(needsRestore())setTimeout(showRestore,700)}
  window.addEventListener('online',()=>syncNow(false));document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNow(false)});
  setInterval(()=>{if(cfg.url&&cfg.auto!==false&&!document.hidden)syncNow(false)},90000);if(cfg.url)setTimeout(()=>syncNow(false),1500);
  try{if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){fetch('sw.js',{method:'HEAD'}).then(r=>{if(r.ok){navigator.serviceWorker.register('sw.js').catch(()=>{});const l=document.createElement('link');l.rel='manifest';l.href='manifest.json';document.head.appendChild(l)}}).catch(()=>{})}}catch(e){}
