@@ -182,9 +182,9 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
 @media (max-width:860px){.xb{display:none}.bnav a{font-size:9.5px}.bnav a.on svg{width:30px}}
 
 /* ---- honours badge ---- */
-.honb{display:inline-flex;align-items:center;gap:3px;margin-left:7px;padding:1px 8px 1px 3px;border-radius:999px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;vertical-align:1px;border:1px solid #f59e0b;white-space:nowrap}
-.honb i{width:15px;height:15px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#d97706);display:grid;place-items:center;color:#fff;font-style:normal}
-.rkp{display:inline-grid;place-items:center;min-width:26px;height:22px;border-radius:7px;background:#eef2ff;color:#3730a3;font-weight:800;padding:0 5px}
+.honb{display:inline-flex;align-items:center;gap:2px;margin-left:5px;padding:0 6px 0 2px;border-radius:999px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:7.5px;line-height:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;vertical-align:1px;border:1px solid #f59e0b;white-space:nowrap}
+.honb i{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#d97706);display:grid;place-items:center;color:#fff;font-style:normal}
+.mdl{display:inline-block;width:20px;text-align:center;font-size:14px;vertical-align:-1px}.rkp{display:inline-grid;place-items:center;min-width:26px;height:22px;border-radius:7px;background:#eef2ff;color:#3730a3;font-weight:800;padding:0 5px}
 /* ---- paper (modern printable sheet) ---- */
 .paper{background:#fff;border-radius:16px;box-shadow:var(--sh);border:1px solid var(--line);padding:22px;margin:0 auto;font-size:13px;color:#0f172a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .paper .rh{display:none!important}
@@ -243,7 +243,7 @@ ol.steps{margin:0 0 12px;padding-left:20px;line-height:1.75}
   <div class="brand"><div class="logo" id="logoIc"></div><div><b id="brandOrg">St. James H.S. School</b><small>Sunday School Attendance</small></div></div>
   <nav class="nav" id="nav"></nav>
   <a class="instb" id="instBtn" onclick="installApp()">⬇ Install App</a>
-  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.3 · works offline</div></div>
+  <div class="foot"><div id="netState"></div><div id="saveState" style="margin-top:4px"></div><div id="syncState" style="margin-top:4px"></div><div style="margin-top:6px;opacity:.8">v3.4 · works offline</div></div>
  </aside>
  <main class="main" id="main"></main>
 </div>
@@ -713,8 +713,8 @@ function rOffering(){const dates=rangeDates(U.rRange);
  b+=`<div class="noprint" style="margin-top:14px"><h3>Offering by department</h3>${S.depts.map((d,i)=>hbar(`<i class="dot" style="color:${d.color}"></i> ${esc(d.name)}`,[{v:tot[i],c:d.color,n:d.name},{v:Math.max(...tot,1)-tot[i],c:'transparent',n:''}],money(tot[i]))).join('')}</div>`;
  return[rangeSel(),'Offering Collection Report',rangeLabel(U.rRange)+' · Total '+money(G),b]}
 
-const HONB='<span class="honb"><i><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg></i>Honours</span>';
-const rankCell=r=>r?(r<=3?['🥇','🥈','🥉'][r-1]+' ':'')+`<span class="rkp">${r}</span>`:'—';
+const HONB='<span class="honb"><i><svg viewBox="0 0 24 24" width="7" height="7" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg></i>Honours</span>';
+const rankCell=(r,h)=>r?`<span class="mdl">${r<=3?['🥇','🥈','🥉'][r-1]:h?'🏅':''}</span><span class="rkp">${r}</span>`:'—';
 function secTeachers(cid){return S.teachers.filter(t=>t.sec===cid).map(t=>t.name).join(', ')}
 function paper(o){const s=S.settings;const body=String(o.body||'').replace(/<table([^>]*)>\s*<tr>(\s*<th[\s\S]*?<\/tr>)/g,'<table$1><thead><tr>$2</thead><tbody>').replace(/<\/table>/g,'</tbody></table>');
  const info=o.info||[];
@@ -1124,7 +1124,7 @@ function xSheet(e){const d=xPick(),cid=U.xSec,ar=U.xAtt||'session';
  const x=examStats(e,'all',cid),rmap={};rankRows(x.rows).forEach(r=>rmap[r.s.id]=r.rank);
  const dates=rangeDates(ar).filter(dt=>secStat(dt,cid).taken),teacher=secTeachers(cid);let aSum=0,aN=0;
  const rows=studentsOf(cid).map(s=>{const v=markOf(e.id,cid,s.id),t=resStatus(v,e),a=stuRange(s,dates),ap=a.M?pct(a.P,a.M):null;if(ap!==null){aSum+=ap;aN++}const rk=rmap[s.id];
-  return `<tr><td class="c"><b>${s.roll}</b></td><td><b>${esc(s.name)}</b>${t==='H'?HONB:''}${s.guardian?` <span style="font-size:10.5px;color:#64748b;font-weight:500">· ${esc(s.guardian)}</span>`:''}</td><td class="c">${a.M?`${a.P} / ${a.M}`:'—'}</td><td>${ap===null?'—':`<div class="attb">${miniBar(ap)}<b class="${pctCls(ap)}">${ap}%</b></div>`}</td><td class="c mkc">${v===undefined?'—':v}</td><td>${badge(t)}</td><td class="c">${rankCell(rk)}</td></tr>`}).join('');
+  return `<tr><td class="c"><b>${s.roll}</b></td><td><b>${esc(s.name)}</b>${t==='H'?HONB:''}${s.guardian?` <span style="font-size:10.5px;color:#64748b;font-weight:500">· ${esc(s.guardian)}</span>`:''}</td><td class="c">${a.M?`${a.P} / ${a.M}`:'—'}</td><td>${ap===null?'—':`<div class="attb">${miniBar(ap)}<b class="${pctCls(ap)}">${ap}%</b></div>`}</td><td class="c mkc">${v===undefined?'—':v}</td><td>${badge(t)}</td><td class="c">${rankCell(rk,t==='H')}</td></tr>`}).join('');
  const body=`<div class="tbl"><table data-title="Result sheet"><tr><th class="c">Roll</th><th>Student Name</th><th class="c">Sundays Present</th><th>Attendance</th><th class="c">Marks / ${e.fm}</th><th>Result</th><th class="c">Rank</th></tr>${rows||'<tr><td colspan="7" class="muted">No students in this section</td></tr>'}</table></div>`;
  return h+paper({tag:'Result Sheet',sub:esc(e.name),teacher:teacher||'',body,
   info:[['Department',esc(d.name)],['Section',esc(secInfo(cid).c.name)],['Class Teacher',esc(teacher||'—')],['Examination',esc(e.name)],['Marks',`Full ${e.fm} · Pass ${e.pm} · Honours ${e.hm}+`],['Attendance period',`${rangeLabel(ar)} · ${dates.length} Sundays`]],
@@ -1133,7 +1133,7 @@ function xMerit(e){const f=U.xF||'all',n=U.xTop||10,ar=U.xAtt||'session';const x
  const h=`<div class="card noprint" style="margin-bottom:12px"><div class="ctl"><select onchange="setU('xF',this.value)">${deptOpts(f,true)}</select><select onchange="setU('xTop',this.value==='all'?'all':+this.value)">${[3,5,10,20,50,'all'].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v==='all'?'All students':'Top '+v}</option>`).join('')}</select><label class="muted" style="font-size:12.5px">Attendance:</label><select onchange="setU('xAtt',this.value)">${monthOpts(ar,true)}</select>${pxBtns('Merit_List')}</div></div>`;
  const held=rangeDates(ar);let aSum=0,aN=0;
  const rows=list.map(r=>{const ds=held.filter(dt=>secStat(dt,r.c.id).taken),a=stuRange(r.s,ds),ap=a.M?pct(a.P,a.M):null;if(ap!==null){aSum+=ap;aN++}
-  return `<tr><td class="c">${rankCell(r.rank)}</td><td><b>${esc(r.s.name)}</b>${r.st==='H'?HONB:''}<div style="font-size:10.5px;color:#64748b">Roll ${r.s.roll}${r.s.guardian?' · '+esc(r.s.guardian):''}</div></td><td>${esc(r.d.name)}</td><td>${esc(r.c.name)}</td><td>${esc(secTeachers(r.c.id)||'—')}</td><td class="c">${a.M?`${a.P} / ${a.M}`:'—'}</td><td>${ap===null?'—':`<div class="attb">${miniBar(ap)}<b class="${pctCls(ap)}">${ap}%</b></div>`}</td><td class="c mkc">${r.v}</td><td>${badge(r.st)}</td></tr>`}).join('');
+  return `<tr><td class="c">${rankCell(r.rank,r.st==='H')}</td><td><b>${esc(r.s.name)}</b>${r.st==='H'?HONB:''}<div style="font-size:10.5px;color:#64748b">Roll ${r.s.roll}${r.s.guardian?' · '+esc(r.s.guardian):''}</div></td><td>${esc(r.d.name)}</td><td>${esc(r.c.name)}</td><td>${esc(secTeachers(r.c.id)||'—')}</td><td class="c">${a.M?`${a.P} / ${a.M}`:'—'}</td><td>${ap===null?'—':`<div class="attb">${miniBar(ap)}<b class="${pctCls(ap)}">${ap}%</b></div>`}</td><td class="c mkc">${r.v}</td><td>${badge(r.st)}</td></tr>`}).join('');
  const body=`<div class="tbl"><table data-title="Merit list"><tr><th class="c">Rank</th><th>Student Name</th><th>Department</th><th>Section</th><th>Class Teacher</th><th class="c">Sundays Present</th><th>Attendance</th><th class="c">Marks / ${e.fm}</th><th>Result</th></tr>${rows||'<tr><td colspan="9" class="muted">No marks entered yet</td></tr>'}</table></div>`;
  const hon=list.filter(r=>r.st==='H').length;
  return h+paper({tag:'Merit List',sub:esc(e.name),body,
